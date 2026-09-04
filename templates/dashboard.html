@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html><head><title>پنل</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><div class="box">
+<h2>داشبورد</h2>
+<button onclick="createConfig('vless')">ساخت VLESS</button>
+<button onclick="createConfig('trojan')">ساخت Trojan</button>
+<pre id="result"></pre>
+<a href="/logout">خروج</a>
+</div>
+<script>
+function createConfig(p){
+  fetch('/api/config/create',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'protocol='+p})
+  .then(r=>r.json()).then(d=>document.getElementById('result').innerText=JSON.stringify(d,null,2));
+}
+</script></body></html>
