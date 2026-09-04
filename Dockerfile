@@ -13,13 +13,24 @@ WORKDIR /app
 
 RUN apk add --no-cache ca-certificates curl
 
+# Install cloudflared
 RUN curl -L \
     https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
     -o /usr/local/bin/cloudflared \
     && chmod +x /usr/local/bin/cloudflared
 
+# Install Xray
+RUN curl -L \
+    https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip \
+    -o /tmp/xray.zip \
+    && apk add --no-cache unzip \
+    && unzip /tmp/xray.zip xray -d /usr/local/bin/ \
+    && chmod +x /usr/local/bin/xray \
+    && rm -f /tmp/xray.zip
+
 COPY --from=builder /app/panel .
 
+COPY config ./config
 COPY static ./static
 COPY templates ./templates
 
