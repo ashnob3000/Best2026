@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"panel/cloudflare"
 	"panel/database"
@@ -16,6 +17,22 @@ func main() {
 	if err := database.Init(); err != nil {
 		log.Fatal("Database initialization failed:", err)
 	}
+	// Start Xray
+xrayCmd := exec.Command(
+	"xray",
+	"run",
+	"-c",
+	"config/xray.json",
+)
+
+xrayCmd.Stdout = os.Stdout
+xrayCmd.Stderr = os.Stderr
+
+if err := xrayCmd.Start(); err != nil {
+	log.Fatal("Failed to start Xray:", err)
+}
+
+log.Println("Xray started")
 
 	// Cloudflared tunnels
 	tunnelManager := cloudflare.NewTunnelManager()
