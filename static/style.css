@@ -1,0 +1,5 @@
+body{background:#1a1a1a;color:#e0e0e0;font-family:sans-serif;display:flex;justify-content:center;padding-top:50px}
+.box{background:#242424;padding:30px;border-radius:10px;border:1px solid #2ecc71;width:300px;text-align:center}
+input,button{width:100%;padding:10px;margin:5px 0;border-radius:5px;border:none}
+button{background:#2ecc71;color:#111;font-weight:bold;cursor:pointer}
+a{color:#2ecc71}
