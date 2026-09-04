@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"panel/cloudflare"
 	"panel/database"
 	"panel/handlers"
 )
@@ -16,15 +17,18 @@ func main() {
 		log.Fatal("Database initialization failed:", err)
 	}
 
+	// Cloudflared tunnels
+	tunnelManager := cloudflare.NewTunnelManager()
+
+	go tunnelManager.StartVLESS()
+	go tunnelManager.StartTrojan()
+
 	// Client handlers
 	clientHandler := handlers.NewClientHandler()
 
 	http.HandleFunc("/", handlers.DashboardHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/logout", handlers.LogoutHandler)
-
-	// Old API
-	http.HandleFunc("/api/config/create", handlers.CreateConfigHandler)
 
 	// Client management
 	http.HandleFunc("/clients/create", clientHandler.Create)
