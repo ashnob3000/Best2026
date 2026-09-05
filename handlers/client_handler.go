@@ -15,19 +15,29 @@ import (
 	"panel/database"
 )
 
+type XrayManager interface {
+	Reload() error
+}
+
 type ClientHandler struct {
 	TunnelManager interface {
 		VLESSURL() string
 		TrojanURL() string
 	}
+
+	XrayManager XrayManager
 }
 
-func NewClientHandler(tunnelManager interface {
-	VLESSURL() string
-	TrojanURL() string
-}) *ClientHandler {
+func NewClientHandler(
+	tunnelManager interface {
+		VLESSURL() string
+		TrojanURL() string
+	},
+	xrayManager XrayManager,
+) *ClientHandler {
 	return &ClientHandler{
 		TunnelManager: tunnelManager,
+		XrayManager:   xrayManager,
 	}
 }
 
@@ -76,6 +86,18 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Update Xray configuration
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"client was saved but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -99,6 +121,18 @@ func (h *ClientHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "failed to delete client", http.StatusInternalServerError)
 		return
+	}
+
+	// Update Xray configuration
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"client was deleted but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
