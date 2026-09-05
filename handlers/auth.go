@@ -36,3 +36,18 @@ func IsAuthenticated(r *http.Request) bool {
 	c, err := r.Cookie(sessionCookieName)
 	return err == nil && c.Value == "authenticated"
 }
+func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !IsAuthenticated(r) {
+			if r.Method == http.MethodGet {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+			}
+
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next(w, r)
+	}
+}
