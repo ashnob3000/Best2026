@@ -197,6 +197,14 @@
             margin-top: 7px;
         }
 
+        .quota-status {
+            display: none;
+        }
+
+        .quota-status.show {
+            display: block;
+        }
+
         .actions {
             display: flex;
             gap: 8px;
@@ -294,7 +302,10 @@
 
             {{range .Clients}}
 
-            <div class="client">
+            <div
+                class="client"
+                data-client-id="{{.ID}}"
+            >
 
                 <div class="client-top">
 
@@ -352,12 +363,6 @@
 
                                 </div>
 
-                                {{if not .Enabled}}
-                                    <div class="disabled">
-                                        Disabled — traffic quota reached
-                                    </div>
-                                {{end}}
-
                             {{else}}
 
                                 <div class="traffic-header">
@@ -377,6 +382,12 @@
                                 </div>
 
                             {{end}}
+
+                            <div
+                                class="quota-status disabled {{if not .Enabled}}show{{end}}"
+                            >
+                                Disabled — traffic quota reached
+                            </div>
 
                         </div>
 
@@ -493,7 +504,7 @@ async function copyConfig(id) {
 }
 
 
-function editQuota(id, currentBytes) {
+async function editQuota(id, currentBytes) {
 
     const currentGB =
         currentBytes > 0
@@ -519,13 +530,48 @@ function editQuota(id, currentBytes) {
         return;
     }
 
-    alert(
-        "Quota editing endpoint is not connected yet."
-    );
+    try {
+
+        const form = new URLSearchParams();
+
+        form.append("id", id);
+        form.append("quota", quota);
+
+        const response = await fetch(
+            "/clients/quota",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to update quota"
+            );
+
+            return;
+        }
+
+        await updateClientStatus();
+
+    } catch (error) {
+
+        alert("Failed to update quota");
+
+    }
 }
 
 
-function resetTraffic(id) {
+async function resetTraffic(id) {
 
     if (
         !confirm(
@@ -535,10 +581,289 @@ function resetTraffic(id) {
         return;
     }
 
-    alert(
-        "Traffic reset endpoint is not connected yet."
+    try {
+
+        const form = new URLSearchParams();
+
+        form.append("id", id);
+
+        const response = await fetch(
+            "/clients/reset",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to reset traffic"
+            );
+
+            return;
+        }
+
+        await updateClientStatus();
+
+    } catch (error) {
+
+        alert("Failed to reset traffic");
+
+    }
+}
+
+
+async function updateClientStatus() {
+
+    try {
+
+        const response = await fetch(
+            "/api/clients/status",
+            {
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+            return;
+        }
+
+        const clients = await response.json();
+
+        for (const client of clients) {
+
+            const element =
+                document.querySelector(
+                    '[data-client-id="' +
+                    client.id +
+                    '"]'
+                );
+
+            if (!element) {
+                continue;
+            }
+
+
+            const used =
+                element.querySelector(
+                    ".traffic-used"
+                );
+
+            const limit =
+                element.querySelector(
+                    ".traffic-limit"
+                );
+
+            const progress =
+                element.querySelector(
+                    ".progress-bar"
+                );
+
+            const statusDot =
+                element.querySelector(
+                    ".status-dot"
+                );
+
+            const quotaStatus =
+                element.querySelector(
+                    ".quota-status"
+                );
+
+
+            /*
+             * TRAFFIC USED
+             */
+
+            if (used) {
+
+                used.textContent =
+                    formatBytes(
+                        client.traffic_used
+                    );
+            }
+
+
+            /*
+             * ONLINE / OFFLINE
+             */
+
+            if (statusDot) {
+
+                if (client.online) {
+
+                    statusDot.classList.add(
+                        "online"
+                    );
+
+                    statusDot.title =
+                        "Online";
+
+                } else {
+
+                    statusDot.classList.remove(
+                        "online"
+                    );
+
+                    statusDot.title =
+                        "Offline";
+                }
+            }
+
+
+            /*
+             * QUOTA
+             */
+
+            if (client.traffic_limit > 0) {
+
+                if (limit) {
+
+                    limit.textContent =
+                        "/ " +
+                        formatBytes(
+                            client.traffic_limit
+                        );
+                }
+
+                if (progress) {
+
+                    let percent =
+                        client.traffic_used *
+                        100 /
+                        client.traffic_limit;
+
+                    if (percent > 100) {
+                        percent = 100;
+                    }
+
+                    if (percent < 0) {
+                        percent = 0;
+                    }
+
+                    progress.style.width =
+                        percent + "%";
+
+
+                    if (
+                        client.traffic_used >=
+                        client.traffic_limit
+                    ) {
+
+                        progress.classList.add(
+                            "full"
+                        );
+
+                    } else {
+
+                        progress.classList.remove(
+                            "full"
+                        );
+                    }
+                }
+
+            } else {
+
+                if (limit) {
+
+                    limit.textContent =
+                        "Unlimited";
+                }
+
+                if (progress) {
+
+                    progress.style.width =
+                        "0%";
+
+                    progress.classList.remove(
+                        "full"
+                    );
+                }
+            }
+
+
+            /*
+             * DISABLED STATUS
+             */
+
+            if (quotaStatus) {
+
+                if (!client.enabled) {
+
+                    quotaStatus.classList.add(
+                        "show"
+                    );
+
+                } else {
+
+                    quotaStatus.classList.remove(
+                        "show"
+                    );
+                }
+            }
+        }
+
+    } catch (error) {
+
+        console.log(
+            "Status update failed:",
+            error
+        );
+    }
+}
+
+
+function formatBytes(bytes) {
+
+    if (bytes < 1000) {
+        return bytes + " B";
+    }
+
+    if (bytes < 1000000) {
+
+        return (
+            (bytes / 1000).toFixed(1) +
+            " KB"
+        );
+    }
+
+    if (bytes < 1000000000) {
+
+        return (
+            (bytes / 1000000).toFixed(1) +
+            " MB"
+        );
+    }
+
+    return (
+        (bytes / 1000000000).toFixed(2) +
+        " GB"
     );
 }
+
+
+/*
+ * Initial update
+ */
+
+updateClientStatus();
+
+
+/*
+ * Live update every 5 seconds
+ */
+
+setInterval(
+    updateClientStatus,
+    5000
+);
 
 </script>
 
