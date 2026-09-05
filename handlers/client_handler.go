@@ -3,7 +3,9 @@ package handlers
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -13,10 +15,20 @@ import (
 	"panel/database"
 )
 
-type ClientHandler struct{}
+type ClientHandler struct {
+	TunnelManager interface {
+		VLESSURL() string
+		TrojanURL() string
+	}
+}
 
-func NewClientHandler() *ClientHandler {
-	return &ClientHandler{}
+func NewClientHandler(tunnelManager interface {
+	VLESSURL() string
+	TrojanURL() string
+}) *ClientHandler {
+	return &ClientHandler{
+		TunnelManager: tunnelManager,
+	}
 }
 
 func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -125,22 +137,58 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
-	if protocol == "vless" {
-		_, _ = w.Write([]byte(
-			"VLESS CLIENT\n" +
-				"Name: " + name + "\n" +
-				"UUID: " + clientUUID + "\n",
-		))
+	if h.TunnelManager == nil {
+		http.Error(w, "tunnel manager unavailable", http.StatusServiceUnavailable)
 		return
 	}
 
-	_, _ = w.Write([]byte(
-		"TROJAN CLIENT\n" +
-			"Name: " + name + "\n" +
-			"Password: " + password + "\n",
-	))
+	var tunnelURL string
+
+	if protocol == "vless" {
+		tunnelURL = h.TunnelManager.VLESSURL()
+	} else {
+		tunnelURL = h.TunnelManager.TrojanURL()
+	}
+
+	if tunnelURL == "" {
+		http.Error(w, "tunnel is not ready yet", http.StatusServiceUnavailable)
+		return
+	}
+
+	parsedURL, err := url.Parse(tunnelURL)
+	if err != nil {
+		http.Error(w, "invalid tunnel URL", http.StatusInternalServerError)
+		return
+	}
+
+	host := parsedURL.Host
+
+	var result string
+
+	if protocol == "vless" {
+		result = fmt.Sprintf(
+			"vless://%s@%s:443?encryption=none&security=tls&type=ws&host=%s&path=%s&sni=%s#%s",
+			clientUUID,
+			host,
+			url.QueryEscape(host),
+			url.QueryEscape("/vless"),
+			url.QueryEscape(host),
+			url.QueryEscape(name),
+		)
+	} else {
+		result = fmt.Sprintf(
+			"trojan://%s@%s:443?security=tls&type=ws&host=%s&path=%s&sni=%s#%s",
+			url.QueryEscape(password),
+			host,
+			url.QueryEscape(host),
+			url.QueryEscape("/trojan"),
+			url.QueryEscape(host),
+			url.QueryEscape(name),
+		)
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	_, _ = w.Write([]byte(result))
 }
 
 func generatePassword(length int) string {
