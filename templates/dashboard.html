@@ -1,15 +1,290 @@
 <!DOCTYPE html>
-<html><head><title>پنل</title><link rel="stylesheet" href="/static/style.css"></head>
-<body><div class="box">
-<h2>داشبورد</h2>
-<button onclick="createConfig('vless')">ساخت VLESS</button>
-<button onclick="createConfig('trojan')">ساخت Trojan</button>
-<pre id="result"></pre>
-<a href="/logout">خروج</a>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>Best2026 Panel</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        color: #222;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .header h1 {
+        margin: 0;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+    }
+
+    .form-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    input,
+    select,
+    button {
+        font-size: 15px;
+        padding: 11px 14px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    input {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    select {
+        min-width: 180px;
+    }
+
+    button {
+        cursor: pointer;
+        background: #222;
+        color: white;
+        border: none;
+    }
+
+    button:hover {
+        opacity: .9;
+    }
+
+    button.delete {
+        background: #c62828;
+    }
+
+    .client {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 16px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .client:last-child {
+        border-bottom: none;
+    }
+
+    .client-name {
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .protocol {
+        margin-top: 5px;
+        color: #777;
+        font-size: 14px;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .empty {
+        color: #888;
+        text-align: center;
+        padding: 30px 0;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<div class="header">
+    <h1>Best2026</h1>
 </div>
+
+<!-- Create Client -->
+<div class="card">
+
+    <h2>Create Client</h2>
+
+    <form method="POST" action="/clients/create">
+
+        <div class="form-row">
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Client name"
+                required
+            >
+
+            <select name="protocol" required>
+
+                <option value="vless">
+                    VLESS WS TLS
+                </option>
+
+                <option value="trojan">
+                    Trojan WS TLS
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Create Client
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- Clients -->
+<div class="card">
+
+    <h2>Clients</h2>
+
+    {{if .Clients}}
+
+        {{range .Clients}}
+
+        <div class="client">
+
+            <div>
+
+                <div class="client-name">
+                    {{.Name}}
+                </div>
+
+                <div class="protocol">
+
+                    {{if eq .Protocol "vless"}}
+                        VLESS • WS • TLS
+                    {{else}}
+                        Trojan • WS • TLS
+                    {{end}}
+
+                </div>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    type="button"
+                    onclick="copyConfig({{.ID}})"
+                >
+                    📋 Copy
+                </button>
+
+
+                <form
+                    method="POST"
+                    action="/clients/delete"
+                    style="margin: 0;"
+                >
+
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="{{.ID}}"
+                    >
+
+                    <button
+                        class="delete"
+                        type="submit"
+                    >
+                        🗑 Delete
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        {{end}}
+
+    {{else}}
+
+        <div class="empty">
+            No clients yet.
+        </div>
+
+    {{end}}
+
+</div>
+```
+
+</div>
+
 <script>
-function createConfig(p){
-  fetch('/api/config/create',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'protocol='+p})
-  .then(r=>r.json()).then(d=>document.getElementById('result').innerText=JSON.stringify(d,null,2));
+
+async function copyConfig(id) {
+
+    try {
+
+        const response = await fetch(
+            "/clients/config?id=" + encodeURIComponent(id)
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(message || "Failed to generate configuration");
+
+            return;
+        }
+
+        const config = await response.text();
+
+        await navigator.clipboard.writeText(config);
+
+        alert("Configuration copied!");
+
+    } catch (error) {
+
+        alert("Failed to copy configuration");
+
+    }
+
 }
-</script></body></html>
+
+</script>
+
+</body>
+</html>
