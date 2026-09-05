@@ -24,6 +24,8 @@ func main() {
 	if err := xrayManager.Start(); err != nil {
 		log.Fatal(err)
 	}
+	trafficCollector := xray.NewTrafficCollector(xrayManager)
+    trafficCollector.Start()
 
 	// Cloudflared tunnels
 	tunnelManager := cloudflare.NewTunnelManager()
