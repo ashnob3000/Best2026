@@ -65,6 +65,18 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 			},
 		},
 
+		"routing": map[string]interface{}{
+			"rules": []interface{}{
+				map[string]interface{}{
+					"type": "field",
+					"inboundTag": []string{
+						"api",
+					},
+					"outboundTag": "api",
+				},
+			},
+		},
+
 		"inbounds": []interface{}{
 			map[string]interface{}{
 				"tag":      "api",
