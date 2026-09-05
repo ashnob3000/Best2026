@@ -8,8 +8,11 @@ import (
 )
 
 type Client struct {
+	ID       int64
 	UUID     string
 	Password string
+	Email    string
+	Enabled  bool
 }
 
 func GenerateXrayConfig(clients []Client) ([]byte, error) {
@@ -17,29 +20,73 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 	trojanClients := make([]map[string]interface{}, 0)
 
 	for _, client := range clients {
+
+		if !client.Enabled {
+			continue
+		}
+
 		if client.UUID != "" {
 			vlessClients = append(vlessClients, map[string]interface{}{
-				"id": client.UUID,
+				"id":    client.UUID,
+				"email": client.Email,
+				"level": 0,
 			})
 		}
 
 		if client.Password != "" {
 			trojanClients = append(trojanClients, map[string]interface{}{
 				"password": client.Password,
+				"email":    client.Email,
+				"level":    0,
 			})
 		}
 	}
 
 	cfg := map[string]interface{}{
+
 		"log": map[string]interface{}{
 			"loglevel": "warning",
 		},
 
+		// Traffic statistics API
+		"api": map[string]interface{}{
+			"tag": "api",
+			"services": []string{
+				"StatsService",
+			},
+		},
+
+		"stats": map[string]interface{}{},
+
+		"policy": map[string]interface{}{
+			"levels": map[string]interface{}{
+				"0": map[string]interface{}{
+					"statsUserUplink":   true,
+					"statsUserDownlink": true,
+					"statsUserOnline":   true,
+				},
+			},
+		},
+
 		"inbounds": []interface{}{
+
+			// Xray API
+			map[string]interface{}{
+				"tag":      "api",
+				"listen":   "127.0.0.1",
+				"port":     10085,
+				"protocol": "dokodemo-door",
+
+				"settings": map[string]interface{}{
+					"address": "127.0.0.1",
+				},
+			},
+
+			// VLESS
 			map[string]interface{}{
 				"tag":      "vless-ws",
-				"listen":  "127.0.0.1",
-				"port":    2097,
+				"listen":   "127.0.0.1",
+				"port":     2097,
 				"protocol": "vless",
 
 				"settings": map[string]interface{}{
@@ -57,10 +104,11 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 				},
 			},
 
+			// Trojan
 			map[string]interface{}{
 				"tag":      "trojan-ws",
-				"listen":  "127.0.0.1",
-				"port":    2098,
+				"listen":   "127.0.0.1",
+				"port":     2098,
 				"protocol": "trojan",
 
 				"settings": map[string]interface{}{
