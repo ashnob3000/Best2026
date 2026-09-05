@@ -22,8 +22,17 @@ func Init() error {
 		return err
 	}
 
+	// SQLite works best with a single writer connection.
+	DB.SetMaxOpenConns(1)
+	DB.SetMaxIdleConns(1)
+
 	if err := DB.Ping(); err != nil {
 		return err
+	}
+
+	// Wait up to 5 seconds instead of immediately returning SQLITE_BUSY.
+	if _, err := DB.Exec(`PRAGMA busy_timeout = 5000`); err != nil {
+		return fmt.Errorf("failed to set busy timeout: %w", err)
 	}
 
 	_, err = DB.Exec(`
