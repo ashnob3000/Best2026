@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
@@ -38,7 +40,6 @@ func Init() error {
 		return err
 	}
 
-	// Add new columns if they do not exist yet.
 	columns := map[string]string{
 		"traffic_limit_bytes": "INTEGER NOT NULL DEFAULT 0",
 		"traffic_used_bytes":  "INTEGER NOT NULL DEFAULT 0",
@@ -77,12 +78,12 @@ func columnExists(table string, column string) (bool, error) {
 
 	for rows.Next() {
 		var (
-			cid       int
-			name      string
-			dataType  string
-			notNull   int
-			defaultV  interface{}
-			primary   int
+			cid      int
+			name     string
+			dataType string
+			notNull  int
+			defaultV interface{}
+			primary  int
 		)
 
 		if err := rows.Scan(
