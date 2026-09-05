@@ -18,12 +18,18 @@ type XrayManager interface {
 	Reload() error
 }
 
+type TrafficResetter interface {
+	ResetClient(id int64)
+}
+
 type ClientHandler struct {
 	TunnelManager interface {
 		VLESSURL() string
 		TrojanURL() string
 	}
-	XrayManager XrayManager
+
+	XrayManager    XrayManager
+	TrafficResetter TrafficResetter
 }
 
 func NewClientHandler(
@@ -32,10 +38,13 @@ func NewClientHandler(
 		TrojanURL() string
 	},
 	xrayManager XrayManager,
+	trafficResetter TrafficResetter,
 ) *ClientHandler {
+
 	return &ClientHandler{
-		TunnelManager: tunnelManager,
-		XrayManager:   xrayManager,
+		TunnelManager:   tunnelManager,
+		XrayManager:     xrayManager,
+		TrafficResetter: trafficResetter,
 	}
 }
 
@@ -193,9 +202,6 @@ func (h *ClientHandler) EditQuota(w http.ResponseWriter, r *http.Request) {
 
 	enabled := 1
 
-	// 0 = unlimited.
-	// If the existing usage is already at/above the new limit,
-	// disable the client immediately.
 	if trafficLimit > 0 && trafficUsed >= trafficLimit {
 		enabled = 0
 	}
@@ -244,37 +250,24 @@ func (h *ClientHandler) ResetTraffic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var trafficLimit int64
-
-	err = database.DB.QueryRow(`
-		SELECT traffic_limit_bytes
-		FROM clients
-		WHERE id = ?
-	`, id).Scan(&trafficLimit)
-
-	if err != nil {
-		http.Error(w, "client not found", http.StatusNotFound)
-		return
-	}
-
 	_, err = database.DB.Exec(`
 		UPDATE clients
 		SET traffic_used_bytes = 0,
 		    last_seen = NULL,
 		    enabled = 1
 		WHERE id = ?
-	`,
-		id,
-	)
+	`, id)
 
 	if err != nil {
 		http.Error(w, "failed to reset traffic", http.StatusInternalServerError)
 		return
 	}
 
-	// If quota itself is invalid/zero, client remains unlimited.
-	// Otherwise it is re-enabled because usage was reset to zero.
-	_ = trafficLimit
+	// Tell the collector that the old Xray counter
+	// must become the new baseline.
+	if h.TrafficResetter != nil {
+		h.TrafficResetter.ResetClient(id)
+	}
 
 	if h.XrayManager != nil {
 		if err := h.XrayManager.Reload(); err != nil {
@@ -334,7 +327,6 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// A disabled client must not receive a usable configuration.
 	if enabled == 0 {
 		http.Error(w, "client is disabled", http.StatusForbidden)
 		return
