@@ -28,7 +28,7 @@ type ClientHandler struct {
 		TrojanURL() string
 	}
 
-	XrayManager    XrayManager
+	XrayManager     XrayManager
 	TrafficResetter TrafficResetter
 }
 
@@ -165,6 +165,276 @@ func (h *ClientHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// EditName changes the name of a client.
+func (h *ClientHandler) EditName(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid client id", http.StatusBadRequest)
+		return
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+
+	if name == "" {
+		http.Error(w, "client name is required", http.StatusBadRequest)
+		return
+	}
+
+	result, err := database.DB.Exec(`
+		UPDATE clients
+		SET name = ?
+		WHERE id = ?
+	`, name, id)
+
+	if err != nil {
+		http.Error(w, "failed to update client name", http.StatusInternalServerError)
+		return
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "failed to update client name", http.StatusInternalServerError)
+		return
+	}
+
+	if affected == 0 {
+		http.Error(w, "client not found", http.StatusNotFound)
+		return
+	}
+
+	// Name is also used as the URI fragment in generated configs.
+	// Reloading keeps the generated Xray config in sync.
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"name was updated but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ChangeUUID changes the UUID of a VLESS client.
+func (h *ClientHandler) ChangeUUID(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid client id", http.StatusBadRequest)
+		return
+	}
+
+	var protocol string
+
+	err = database.DB.QueryRow(`
+		SELECT protocol
+		FROM clients
+		WHERE id = ?
+	`, id).Scan(&protocol)
+
+	if err != nil {
+		http.Error(w, "client not found", http.StatusNotFound)
+		return
+	}
+
+	if protocol != "vless" {
+		http.Error(w, "UUID can only be changed for VLESS clients", http.StatusBadRequest)
+		return
+	}
+
+	newUUID := uuid.New().String()
+
+	_, err = database.DB.Exec(`
+		UPDATE clients
+		SET uuid = ?
+		WHERE id = ?
+	`, newUUID, id)
+
+	if err != nil {
+		http.Error(w, "failed to change UUID", http.StatusInternalServerError)
+		return
+	}
+
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"UUID was changed but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ChangePassword changes the password of a Trojan client.
+func (h *ClientHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid client id", http.StatusBadRequest)
+		return
+	}
+
+	var protocol string
+
+	err = database.DB.QueryRow(`
+		SELECT protocol
+		FROM clients
+		WHERE id = ?
+	`, id).Scan(&protocol)
+
+	if err != nil {
+		http.Error(w, "client not found", http.StatusNotFound)
+		return
+	}
+
+	if protocol != "trojan" {
+		http.Error(w, "password can only be changed for Trojan clients", http.StatusBadRequest)
+		return
+	}
+
+	newPassword := generatePassword(24)
+
+	_, err = database.DB.Exec(`
+		UPDATE clients
+		SET password = ?
+		WHERE id = ?
+	`, newPassword, id)
+
+	if err != nil {
+		http.Error(w, "failed to change password", http.StatusInternalServerError)
+		return
+	}
+
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"password was changed but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// SetEnabled enables or disables a client.
+func (h *ClientHandler) SetEnabled(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid client id", http.StatusBadRequest)
+		return
+	}
+
+	action := strings.ToLower(strings.TrimSpace(r.FormValue("action")))
+
+	var enabled int
+
+	switch action {
+	case "enable":
+		enabled = 1
+
+	case "disable":
+		enabled = 0
+
+	default:
+		http.Error(w, "invalid action", http.StatusBadRequest)
+		return
+	}
+
+	// Do not allow manually enabling a client whose quota is already reached.
+	if enabled == 1 {
+
+		var used int64
+		var limit int64
+
+		err = database.DB.QueryRow(`
+			SELECT traffic_used_bytes, traffic_limit_bytes
+			FROM clients
+			WHERE id = ?
+		`, id).Scan(&used, &limit)
+
+		if err != nil {
+			http.Error(w, "client not found", http.StatusNotFound)
+			return
+		}
+
+		if limit > 0 && used >= limit {
+			http.Error(
+				w,
+				"client has reached its traffic quota",
+				http.StatusConflict,
+			)
+			return
+		}
+	}
+
+	result, err := database.DB.Exec(`
+		UPDATE clients
+		SET enabled = ?
+		WHERE id = ?
+	`, enabled, id)
+
+	if err != nil {
+		http.Error(w, "failed to change client status", http.StatusInternalServerError)
+		return
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "failed to change client status", http.StatusInternalServerError)
+		return
+	}
+
+	if affected == 0 {
+		http.Error(w, "client not found", http.StatusNotFound)
+		return
+	}
+
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"client status was changed but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 // EditQuota changes the traffic quota of a client.
 func (h *ClientHandler) EditQuota(w http.ResponseWriter, r *http.Request) {
 
@@ -263,8 +533,6 @@ func (h *ClientHandler) ResetTraffic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tell the collector that the old Xray counter
-	// must become the new baseline.
 	if h.TrafficResetter != nil {
 		h.TrafficResetter.ResetClient(id)
 	}
@@ -392,7 +660,6 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 			host,
 			url.QueryEscape(host),
 			url.QueryEscape("/trojan"),
-			url.QueryEscape(host),
 			url.QueryEscape(name),
 		)
 	}
