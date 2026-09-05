@@ -41,12 +41,20 @@ func main() {
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 
+	// Client management
 	http.HandleFunc("/clients/create", clientHandler.Create)
 	http.HandleFunc("/clients/delete", clientHandler.Delete)
 	http.HandleFunc("/clients/config", clientHandler.Config)
 	http.HandleFunc("/clients/quota", clientHandler.EditQuota)
 	http.HandleFunc("/clients/reset", clientHandler.ResetTraffic)
 
+	// New client controls
+	http.HandleFunc("/clients/name", clientHandler.EditName)
+	http.HandleFunc("/clients/uuid", clientHandler.ChangeUUID)
+	http.HandleFunc("/clients/password", clientHandler.ChangePassword)
+	http.HandleFunc("/clients/status", clientHandler.SetEnabled)
+
+	// Live client status
 	http.HandleFunc(
 		"/api/clients/status",
 		handlers.ClientsStatusHandler,
