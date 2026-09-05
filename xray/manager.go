@@ -39,8 +39,11 @@ func (m *Manager) Reload() error {
 
 	if m.cmd != nil && m.cmd.Process != nil {
 		log.Println("Stopping Xray...")
+
 		_ = m.cmd.Process.Kill()
 		_, _ = m.cmd.Process.Wait()
+
+		m.cmd = nil
 	}
 
 	if err := m.generateConfigLocked(); err != nil {
@@ -76,29 +79,45 @@ func (m *Manager) startLocked() error {
 }
 
 func (m *Manager) generateConfigLocked() error {
+
 	rows, err := database.DB.Query(`
-		SELECT uuid, password
+		SELECT id, uuid, password, enabled
 		FROM clients
 		ORDER BY id
 	`)
 	if err != nil {
 		return fmt.Errorf("failed to query clients: %w", err)
 	}
+
 	defer rows.Close()
 
 	var clients []config.Client
 
 	for rows.Next() {
-		var client config.Client
+
+		var (
+			id       int64
+			uuid     string
+			password string
+			enabled  int
+		)
 
 		if err := rows.Scan(
-			&client.UUID,
-			&client.Password,
+			&id,
+			&uuid,
+			&password,
+			&enabled,
 		); err != nil {
 			return fmt.Errorf("failed to read client: %w", err)
 		}
 
-		clients = append(clients, client)
+		clients = append(clients, config.Client{
+			ID:       id,
+			UUID:     uuid,
+			Password: password,
+			Email:    fmt.Sprintf("client-%d", id),
+			Enabled:  enabled == 1,
+		})
 	}
 
 	if err := rows.Err(); err != nil {
@@ -124,7 +143,19 @@ func (m *Manager) generateConfigLocked() error {
 		return fmt.Errorf("failed to write Xray config: %w", err)
 	}
 
-	log.Printf("Xray configuration updated with %d client(s)", len(clients))
+	enabledCount := 0
+
+	for _, client := range clients {
+		if client.Enabled {
+			enabledCount++
+		}
+	}
+
+	log.Printf(
+		"Xray configuration updated: %d client(s), %d enabled",
+		len(clients),
+		enabledCount,
+	)
 
 	return nil
 }
