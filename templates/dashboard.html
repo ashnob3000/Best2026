@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 950px;
+            max-width: 1050px;
             margin: 40px auto;
             padding: 20px;
         }
@@ -94,8 +94,20 @@
             background: #1976d2;
         }
 
+        button.success {
+            background: #2e7d32;
+        }
+
+        button.warning {
+            background: #ef6c00;
+        }
+
+        button.qr {
+            background: #6a1b9a;
+        }
+
         .client {
-            padding: 18px 0;
+            padding: 20px 0;
             border-bottom: 1px solid #eee;
         }
 
@@ -107,7 +119,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 15px;
+            gap: 20px;
         }
 
         .client-info {
@@ -210,6 +222,7 @@
             gap: 8px;
             flex-wrap: wrap;
             justify-content: flex-end;
+            max-width: 430px;
         }
 
         .actions button {
@@ -228,14 +241,85 @@
             margin-top: 8px;
         }
 
+        /* QR MODAL */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,.25);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px auto 20px;
+            min-height: 256px;
+        }
+
+        #qrcode img,
+        #qrcode canvas {
+            max-width: 256px;
+            max-height: 256px;
+        }
+
+        .qr-config {
+            width: 100%;
+            min-height: 90px;
+            resize: vertical;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .close-modal {
+            background: #555;
+        }
+
         @media (max-width: 700px) {
+
             .client-top {
                 flex-direction: column;
             }
 
             .actions {
                 justify-content: flex-start;
+                max-width: none;
             }
+
         }
     </style>
 </head>
@@ -250,6 +334,7 @@
 
 
     <!-- CREATE CLIENT -->
+
     <div class="card">
 
         <h2>Create Client</h2>
@@ -294,6 +379,7 @@
 
 
     <!-- CLIENTS -->
+
     <div class="card">
 
         <h2>Clients</h2>
@@ -383,6 +469,7 @@
 
                             {{end}}
 
+
                             <div
                                 class="quota-status disabled {{if not .Enabled}}show{{end}}"
                             >
@@ -398,6 +485,8 @@
 
                     <div class="actions">
 
+                        <!-- COPY -->
+
                         <button
                             type="button"
                             onclick="copyConfig({{.ID}})"
@@ -406,14 +495,65 @@
                         </button>
 
 
+                        <!-- QR -->
+
+                        <button
+                            type="button"
+                            class="qr"
+                            onclick="showQR({{.ID}})"
+                        >
+                            📱 QR
+                        </button>
+
+
+                        <!-- RENAME -->
+
+                        <button
+                            type="button"
+                            class="edit"
+                            onclick="editName({{.ID}}, {{printf "%q" .Name}})"
+                        >
+                            ✏️ Rename
+                        </button>
+
+
+                        <!-- UUID / PASSWORD -->
+
+                        {{if eq .Protocol "vless"}}
+
+                        <button
+                            type="button"
+                            class="warning"
+                            onclick="changeUUID({{.ID}})"
+                        >
+                            🔑 New UUID
+                        </button>
+
+                        {{else}}
+
+                        <button
+                            type="button"
+                            class="warning"
+                            onclick="changePassword({{.ID}})"
+                        >
+                            🔐 New Password
+                        </button>
+
+                        {{end}}
+
+
+                        <!-- QUOTA -->
+
                         <button
                             type="button"
                             class="edit"
                             onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
                         >
-                            ✏️ Quota
+                            📊 Quota
                         </button>
 
+
+                        <!-- RESET -->
 
                         <button
                             type="button"
@@ -423,6 +563,33 @@
                             🔄 Reset
                         </button>
 
+
+                        <!-- ENABLE / DISABLE -->
+
+                        {{if .Enabled}}
+
+                        <button
+                            type="button"
+                            class="warning"
+                            onclick="setClientStatus({{.ID}}, 'disable')"
+                        >
+                            🔴 Disable
+                        </button>
+
+                        {{else}}
+
+                        <button
+                            type="button"
+                            class="success"
+                            onclick="setClientStatus({{.ID}}, 'enable')"
+                        >
+                            🟢 Enable
+                        </button>
+
+                        {{end}}
+
+
+                        <!-- DELETE -->
 
                         <form
                             method="POST"
@@ -467,6 +634,58 @@
 </div>
 
 
+<!-- QR MODAL -->
+
+<div
+    id="qrModal"
+    class="modal"
+    onclick="closeQR(event)"
+>
+
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <h3>Client QR Code</h3>
+
+        <div id="qrcode"></div>
+
+        <textarea
+            id="qrConfig"
+            class="qr-config"
+            readonly
+        ></textarea>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                onclick="copyQRConfig()"
+            >
+                📋 Copy
+            </button>
+
+            <button
+                type="button"
+                class="close-modal"
+                onclick="hideQR()"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- QR CODE LIBRARY -->
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+
 <script>
 
 async function copyConfig(id) {
@@ -499,6 +718,331 @@ async function copyConfig(id) {
     } catch (error) {
 
         alert("Failed to copy configuration");
+
+    }
+}
+
+
+async function showQR(id) {
+
+    try {
+
+        const response = await fetch(
+            "/clients/config?id=" +
+            encodeURIComponent(id)
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to generate configuration"
+            );
+
+            return;
+        }
+
+        const config = await response.text();
+
+        const qrContainer =
+            document.getElementById("qrcode");
+
+        qrContainer.innerHTML = "";
+
+        document.getElementById(
+            "qrConfig"
+        ).value = config;
+
+        new QRCode(
+            qrContainer,
+            {
+                text: config,
+                width: 256,
+                height: 256,
+                correctLevel: QRCode.CorrectLevel.M
+            }
+        );
+
+        document
+            .getElementById("qrModal")
+            .classList.add("show");
+
+    } catch (error) {
+
+        alert("Failed to generate QR code");
+
+    }
+}
+
+
+function hideQR() {
+
+    document
+        .getElementById("qrModal")
+        .classList.remove("show");
+
+}
+
+
+function closeQR(event) {
+
+    if (
+        event.target ===
+        document.getElementById("qrModal")
+    ) {
+        hideQR();
+    }
+
+}
+
+
+async function copyQRConfig() {
+
+    const config =
+        document.getElementById(
+            "qrConfig"
+        ).value;
+
+    if (!config) {
+        return;
+    }
+
+    try {
+
+        await navigator.clipboard.writeText(config);
+
+        alert("Configuration copied!");
+
+    } catch (error) {
+
+        alert("Failed to copy configuration");
+
+    }
+}
+
+
+async function editName(id, currentName) {
+
+    const value = prompt(
+        "Enter new client name:",
+        currentName
+    );
+
+    if (value === null) {
+        return;
+    }
+
+    const name = value.trim();
+
+    if (!name) {
+
+        alert("Name cannot be empty.");
+
+        return;
+    }
+
+    try {
+
+        const form = new URLSearchParams();
+
+        form.append("id", id);
+        form.append("name", name);
+
+        const response = await fetch(
+            "/clients/name",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to rename client"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to rename client");
+
+    }
+}
+
+
+async function changeUUID(id) {
+
+    if (
+        !confirm(
+            "Generate a new UUID for this VLESS client?\n\n" +
+            "The current UUID will stop working."
+        )
+    ) {
+        return;
+    }
+
+    try {
+
+        const form = new URLSearchParams();
+
+        form.append("id", id);
+
+        const response = await fetch(
+            "/clients/uuid",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to change UUID"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to change UUID");
+
+    }
+}
+
+
+async function changePassword(id) {
+
+    if (
+        !confirm(
+            "Generate a new password for this Trojan client?\n\n" +
+            "The current password will stop working."
+        )
+    ) {
+        return;
+    }
+
+    try {
+
+        const form = new URLSearchParams();
+
+        form.append("id", id);
+
+        const response = await fetch(
+            "/clients/password",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to change password"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to change password");
+
+    }
+}
+
+
+async function setClientStatus(id, action) {
+
+    let message;
+
+    if (action === "disable") {
+
+        message =
+            "Disable this client?\n\n" +
+            "The client will immediately stop working.";
+
+    } else {
+
+        message =
+            "Enable this client?";
+
+    }
+
+    if (!confirm(message)) {
+        return;
+    }
+
+    try {
+
+        const form = new URLSearchParams();
+
+        form.append("id", id);
+        form.append("action", action);
+
+        const response = await fetch(
+            "/clients/status",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to change client status"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to change client status");
 
     }
 }
@@ -561,7 +1105,7 @@ async function editQuota(id, currentBytes) {
             return;
         }
 
-        await updateClientStatus();
+        window.location.reload();
 
     } catch (error) {
 
@@ -611,7 +1155,7 @@ async function resetTraffic(id) {
             return;
         }
 
-        await updateClientStatus();
+        window.location.reload();
 
     } catch (error) {
 
@@ -863,6 +1407,22 @@ updateClientStatus();
 setInterval(
     updateClientStatus,
     5000
+);
+
+
+/*
+ * ESC closes QR modal
+ */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+            hideQR();
+        }
+
+    }
 );
 
 </script>
