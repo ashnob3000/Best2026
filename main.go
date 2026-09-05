@@ -37,27 +37,27 @@ func main() {
 		trafficCollector,
 	)
 
-	http.HandleFunc("/", handlers.DashboardHandler)
+	http.HandleFunc("/", handlers.RequireAuth(handlers.DashboardHandler))
 	http.HandleFunc("/login", handlers.LoginHandler)
-	http.HandleFunc("/logout", handlers.LogoutHandler)
+	http.HandleFunc("/logout", handlers.RequireAuth(handlers.LogoutHandler))
 
 	// Client management
-	http.HandleFunc("/clients/create", clientHandler.Create)
-	http.HandleFunc("/clients/delete", clientHandler.Delete)
-	http.HandleFunc("/clients/config", clientHandler.Config)
-	http.HandleFunc("/clients/quota", clientHandler.EditQuota)
-	http.HandleFunc("/clients/reset", clientHandler.ResetTraffic)
+	http.HandleFunc("/clients/create", handlers.RequireAuth(clientHandler.Create))
+	http.HandleFunc("/clients/delete", handlers.RequireAuth(clientHandler.Delete))
+	http.HandleFunc("/clients/config", handlers.RequireAuth(clientHandler.Config))
+	http.HandleFunc("/clients/quota", handlers.RequireAuth(clientHandler.EditQuota))
+	http.HandleFunc("/clients/reset", handlers.RequireAuth(clientHandler.ResetTraffic))
 
-	// New client controls
-	http.HandleFunc("/clients/name", clientHandler.EditName)
-	http.HandleFunc("/clients/uuid", clientHandler.ChangeUUID)
-	http.HandleFunc("/clients/password", clientHandler.ChangePassword)
-	http.HandleFunc("/clients/status", clientHandler.SetEnabled)
+	// Client controls
+	http.HandleFunc("/clients/name", handlers.RequireAuth(clientHandler.EditName))
+	http.HandleFunc("/clients/uuid", handlers.RequireAuth(clientHandler.ChangeUUID))
+	http.HandleFunc("/clients/password", handlers.RequireAuth(clientHandler.ChangePassword))
+	http.HandleFunc("/clients/status", handlers.RequireAuth(clientHandler.SetEnabled))
 
 	// Live client status
 	http.HandleFunc(
 		"/api/clients/status",
-		handlers.ClientsStatusHandler,
+		handlers.RequireAuth(handlers.ClientsStatusHandler),
 	)
 
 	http.Handle(
