@@ -1,161 +1,188 @@
-package xray
+package config
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	"sync"
 
-	"panel/config"
-	"panel/database"
+	"github.com/google/uuid"
 )
 
-type Manager struct {
-	mu  sync.Mutex
-	cmd *exec.Cmd
+type Client struct {
+	ID       int64
+	UUID     string
+	Password string
+	Email    string
+	Enabled  bool
 }
 
-func NewManager() *Manager {
-	return &Manager{}
-}
-
-func (m *Manager) Start() error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if err := m.generateConfigLocked(); err != nil {
-		return err
-	}
-
-	return m.startLocked()
-}
-
-func (m *Manager) Reload() error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if m.cmd != nil && m.cmd.Process != nil {
-		log.Println("Stopping Xray...")
-
-		_ = m.cmd.Process.Kill()
-		_, _ = m.cmd.Process.Wait()
-
-		m.cmd = nil
-	}
-
-	if err := m.generateConfigLocked(); err != nil {
-		return err
-	}
-
-	log.Println("Starting Xray with updated configuration...")
-
-	return m.startLocked()
-}
-
-func (m *Manager) startLocked() error {
-	cmd := exec.CommandContext(
-		context.Background(),
-		"xray",
-		"run",
-		"-c",
-		"config/xray.json",
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("failed to start Xray: %w", err)
-	}
-
-	m.cmd = cmd
-
-	log.Println("Xray started")
-
-	return nil
-}
-
-func (m *Manager) generateConfigLocked() error {
-
-	rows, err := database.DB.Query(`
-		SELECT id, uuid, password, enabled
-		FROM clients
-		ORDER BY id
-	`)
-	if err != nil {
-		return fmt.Errorf("failed to query clients: %w", err)
-	}
-
-	defer rows.Close()
-
-	var clients []config.Client
-
-	for rows.Next() {
-
-		var (
-			id       int64
-			uuid     string
-			password string
-			enabled  int
-		)
-
-		if err := rows.Scan(
-			&id,
-			&uuid,
-			&password,
-			&enabled,
-		); err != nil {
-			return fmt.Errorf("failed to read client: %w", err)
-		}
-
-		clients = append(clients, config.Client{
-			ID:       id,
-			UUID:     uuid,
-			Password: password,
-			Email:    fmt.Sprintf("client-%d", id),
-			Enabled:  enabled == 1,
-		})
-	}
-
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("failed while reading clients: %w", err)
-	}
-
-	data, err := config.GenerateXrayConfig(clients)
-	if err != nil {
-		return fmt.Errorf("failed to generate Xray config: %w", err)
-	}
-
-	var pretty json.RawMessage
-
-	if err := json.Unmarshal(data, &pretty); err != nil {
-		return fmt.Errorf("invalid generated Xray config: %w", err)
-	}
-
-	if err := os.WriteFile(
-		"config/xray.json",
-		data,
-		0644,
-	); err != nil {
-		return fmt.Errorf("failed to write Xray config: %w", err)
-	}
-
-	enabledCount := 0
+func GenerateXrayConfig(clients []Client) ([]byte, error) {
+	vlessClients := make([]map[string]interface{}, 0)
+	trojanClients := make([]map[string]interface{}, 0)
 
 	for _, client := range clients {
-		if client.Enabled {
-			enabledCount++
+		if !client.Enabled {
+			continue
+		}
+
+		if client.UUID != "" {
+			vlessClients = append(vlessClients, map[string]interface{}{
+				"id":    client.UUID,
+				"email": client.Email,
+				"level": 0,
+			})
+		}
+
+		if client.Password != "" {
+			trojanClients = append(trojanClients, map[string]interface{}{
+				"password": client.Password,
+				"email":    client.Email,
+				"level":    0,
+			})
 		}
 	}
 
-	log.Printf(
-		"Xray configuration updated: %d client(s), %d enabled",
-		len(clients),
-		enabledCount,
-	)
+	cfg := map[string]interface{}{
+		"log": map[string]interface{}{
+			"loglevel": "warning",
+		},
 
-	return nil
+		"api": map[string]interface{}{
+			"tag": "api",
+			"services": []string{
+				"StatsService",
+			},
+		},
+
+		"stats": map[string]interface{}{},
+
+		"policy": map[string]interface{}{
+			"levels": map[string]interface{}{
+				"0": map[string]interface{}{
+					"statsUserUplink":   true,
+					"statsUserDownlink": true,
+					"statsUserOnline":   true,
+				},
+			},
+		},
+
+		"inbounds": []interface{}{
+			map[string]interface{}{
+				"tag":      "api",
+				"listen":   "127.0.0.1",
+				"port":     10085,
+				"protocol": "dokodemo-door",
+
+				"settings": map[string]interface{}{
+					"address": "127.0.0.1",
+				},
+			},
+
+			map[string]interface{}{
+				"tag":      "vless-ws",
+				"listen":   "127.0.0.1",
+				"port":     2097,
+				"protocol": "vless",
+
+				"settings": map[string]interface{}{
+					"clients":    vlessClients,
+					"decryption": "none",
+				},
+
+				"streamSettings": map[string]interface{}{
+					"network":  "ws",
+					"security": "none",
+
+					"wsSettings": map[string]interface{}{
+						"path": "/vless",
+					},
+				},
+			},
+
+			map[string]interface{}{
+				"tag":      "trojan-ws",
+				"listen":   "127.0.0.1",
+				"port":     2098,
+				"protocol": "trojan",
+
+				"settings": map[string]interface{}{
+					"clients": trojanClients,
+				},
+
+				"streamSettings": map[string]interface{}{
+					"network":  "ws",
+					"security": "none",
+
+					"wsSettings": map[string]interface{}{
+						"path": "/trojan",
+					},
+				},
+			},
+		},
+
+		"outbounds": []interface{}{
+			map[string]interface{}{
+				"protocol": "freedom",
+				"tag":      "direct",
+			},
+		},
+	}
+
+	return json.MarshalIndent(cfg, "", "  ")
+}
+
+func GenerateVlessConfig(sni, wsHost string) map[string]interface{} {
+	id := uuid.New().String()
+
+	return map[string]interface{}{
+		"protocol": "vless",
+		"settings": map[string]interface{}{
+			"clients": []map[string]string{
+				{"id": id},
+			},
+		},
+		"streamSettings": map[string]interface{}{
+			"network":  "ws",
+			"security": "tls",
+			"wsSettings": map[string]string{
+				"path": "/vless",
+				"host": wsHost,
+			},
+			"tlsSettings": map[string]string{
+				"serverName": sni,
+			},
+		},
+	}
+}
+
+func GenerateTrojanConfig(sni, wsHost string) map[string]interface{} {
+	password := uuid.New().String()
+
+	return map[string]interface{}{
+		"protocol": "trojan",
+		"settings": map[string]interface{}{
+			"clients": []map[string]string{
+				{"password": password},
+			},
+		},
+		"streamSettings": map[string]interface{}{
+			"network":  "ws",
+			"security": "tls",
+			"wsSettings": map[string]string{
+				"path": "/trojan",
+				"host": wsHost,
+			},
+			"tlsSettings": map[string]string{
+				"serverName": sni,
+			},
+		},
+	}
+}
+
+func ToJSON(cfg map[string]interface{}) (string, error) {
+	b, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("marshal error: %v", err)
+	}
+
+	return string(b), nil
 }
