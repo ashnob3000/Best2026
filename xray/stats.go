@@ -128,6 +128,35 @@ func (tc *TrafficCollector) collect() {
 	}
 }
 
+// ResetClient resets the collector's in-memory counter for a client.
+//
+// The next stats value from Xray becomes the new baseline,
+// so old Xray traffic is not added again after a dashboard reset.
+func (tc *TrafficCollector) ResetClient(id int64) {
+
+	up, down, err := queryUserTraffic(id)
+
+	if err != nil {
+		log.Printf(
+			"Failed to read Xray stats while resetting client-%d: %v",
+			id,
+			err,
+		)
+
+		tc.mu.Lock()
+		delete(tc.previous, id)
+		tc.mu.Unlock()
+
+		return
+	}
+
+	current := up + down
+
+	tc.mu.Lock()
+	tc.previous[id] = current
+	tc.mu.Unlock()
+}
+
 func queryUserTraffic(id int64) (int64, int64, error) {
 
 	email := fmt.Sprintf("client-%d", id)
