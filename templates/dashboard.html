@@ -1,289 +1,228 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-```
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Best2026 Panel</title>
-
 <style>
-    * {
-        box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-        color: #222;
-    }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0d1117;
+    color: #e6e6e6;
+  }
 
-    .container {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 20px;
-    }
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+  }
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
 
-    .header h1 {
-        margin: 0;
-    }
+  .header h1 {
+    margin: 0;
+    color: #22c55e;
+    letter-spacing: 1px;
+  }
 
-    .card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
-    }
+  .card {
+    background: #141a17;
+    border: 1px solid #1f2b24;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .35);
+  }
 
-    .form-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
+  .card h2 {
+    color: #22c55e;
+    margin-top: 0;
+    font-size: 18px;
+  }
 
-    input,
-    select,
-    button {
-        font-size: 15px;
-        padding: 11px 14px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-    }
+  .form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-    input {
-        flex: 1;
-        min-width: 200px;
-    }
+  input, select, button {
+    font-size: 15px;
+    padding: 11px 14px;
+    border-radius: 8px;
+    border: 1px solid #2a3a30;
+    background: #0f1512;
+    color: #e6e6e6;
+  }
 
-    select {
-        min-width: 180px;
-    }
+  input {
+    flex: 1;
+    min-width: 200px;
+  }
 
-    button {
-        cursor: pointer;
-        background: #222;
-        color: white;
-        border: none;
-    }
+  select {
+    min-width: 180px;
+  }
 
-    button:hover {
-        opacity: .9;
-    }
+  input::placeholder {
+    color: #6b7d72;
+  }
 
-    button.delete {
-        background: #c62828;
-    }
+  button {
+    cursor: pointer;
+    background: #22c55e;
+    color: #0d1117;
+    border: none;
+    font-weight: bold;
+  }
 
-    .client {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        padding: 16px 0;
-        border-bottom: 1px solid #eee;
-    }
+  button:hover {
+    opacity: .85;
+  }
 
-    .client:last-child {
-        border-bottom: none;
-    }
+  button.delete {
+    background: #c62828;
+    color: #fff;
+  }
 
-    .client-name {
-        font-weight: bold;
-        font-size: 17px;
-    }
+  .client {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 0;
+    border-bottom: 1px solid #1f2b24;
+  }
 
-    .protocol {
-        margin-top: 5px;
-        color: #777;
-        font-size: 14px;
-    }
+  .client:last-child {
+    border-bottom: none;
+  }
 
-    .actions {
-        display: flex;
-        gap: 8px;
-    }
+  .client-name {
+    font-weight: bold;
+    font-size: 17px;
+    color: #ffffff;
+  }
 
-    .empty {
-        color: #888;
-        text-align: center;
-        padding: 30px 0;
-    }
+  .protocol {
+    margin-top: 5px;
+    color: #7fbf9e;
+    font-size: 14px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .empty {
+    color: #6b7d72;
+    text-align: center;
+    padding: 30px 0;
+  }
 </style>
-```
-
 </head>
-
 <body>
-
 <div class="container">
 
-```
-<div class="header">
+  <div class="header">
     <h1>Best2026</h1>
-</div>
+  </div>
 
-<!-- Create Client -->
-<div class="card">
-
+  <!-- Create Client -->
+  <div class="card">
     <h2>Create Client</h2>
-
     <form method="POST" action="/clients/create">
-
-        <div class="form-row">
-
-            <input
-                type="text"
-                name="name"
-                placeholder="Client name"
-                required
-            >
-
-            <select name="protocol" required>
-
-                <option value="vless">
-                    VLESS WS TLS
-                </option>
-
-                <option value="trojan">
-                    Trojan WS TLS
-                </option>
-
-            </select>
-
-            <button type="submit">
-                Create Client
-            </button>
-
-        </div>
-
+      <div class="form-row">
+        <input
+          type="text"
+          name="name"
+          placeholder="Client name"
+          required
+        >
+        <select name="protocol" required>
+          <option value="vless">
+            VLESS WS TLS
+          </option>
+          <option value="trojan">
+            Trojan WS TLS
+          </option>
+        </select>
+        <button type="submit">
+          Create Client
+        </button>
+      </div>
     </form>
+  </div>
 
-</div>
-
-
-<!-- Clients -->
-<div class="card">
-
+  <!-- Clients -->
+  <div class="card">
     <h2>Clients</h2>
 
     {{if .Clients}}
-
-        {{range .Clients}}
-
+      {{range .Clients}}
         <div class="client">
-
-            <div>
-
-                <div class="client-name">
-                    {{.Name}}
-                </div>
-
-                <div class="protocol">
-
-                    {{if eq .Protocol "vless"}}
-                        VLESS • WS • TLS
-                    {{else}}
-                        Trojan • WS • TLS
-                    {{end}}
-
-                </div>
-
+          <div>
+            <div class="client-name">
+              {{.Name}}
             </div>
-
-
-            <div class="actions">
-
-                <button
-                    type="button"
-                    onclick="copyConfig({{.ID}})"
-                >
-                    📋 Copy
-                </button>
-
-
-                <form
-                    method="POST"
-                    action="/clients/delete"
-                    style="margin: 0;"
-                >
-
-                    <input
-                        type="hidden"
-                        name="id"
-                        value="{{.ID}}"
-                    >
-
-                    <button
-                        class="delete"
-                        type="submit"
-                    >
-                        🗑 Delete
-                    </button>
-
-                </form>
-
+            <div class="protocol">
+              {{if eq .Protocol "vless"}}
+                VLESS • WS • TLS
+              {{else}}
+                Trojan • WS • TLS
+              {{end}}
             </div>
-
+          </div>
+          <div class="actions">
+            <button
+              type="button"
+              onclick="copyConfig('{{.ID}}')"
+            >
+              📋 Copy
+            </button>
+            <form method="POST" action="/clients/delete" style="margin: 0;">
+              <input type="hidden" name="id" value="{{.ID}}">
+              <button type="submit" class="delete" onclick="return confirm('Delete this client?')">
+                🗑 Delete
+              </button>
+            </form>
+          </div>
         </div>
-
-        {{end}}
-
+      {{end}}
     {{else}}
-
-        <div class="empty">
-            No clients yet.
-        </div>
-
+      <div class="empty">
+        No clients created yet.
+      </div>
     {{end}}
-
-</div>
-```
+  </div>
 
 </div>
 
 <script>
-
-async function copyConfig(id) {
-
-    try {
-
-        const response = await fetch(
-            "/clients/config?id=" + encodeURIComponent(id)
-        );
-
-        if (!response.ok) {
-
-            const message = await response.text();
-
-            alert(message || "Failed to generate configuration");
-
-            return;
-        }
-
-        const config = await response.text();
-
-        await navigator.clipboard.writeText(config);
-
-        alert("Configuration copied!");
-
-    } catch (error) {
-
-        alert("Failed to copy configuration");
-
-    }
-
-}
-
+  function copyConfig(id) {
+    // این تابع باید لینک کانفیگ رو از سرور بگیره و در کلیپ‌بورد کپی کنه
+    fetch('/clients/config?id=' + id)
+      .then(res => res.text())
+      .then(text => {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Config copied to clipboard!');
+        });
+      })
+      .catch(() => {
+        alert('Failed to fetch config.');
+      });
+  }
 </script>
 
 </body>
