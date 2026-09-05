@@ -26,6 +26,10 @@ func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	if err := m.generateConfigLocked(); err != nil {
+		return err
+	}
+
 	return m.startLocked()
 }
 
