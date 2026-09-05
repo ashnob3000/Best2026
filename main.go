@@ -41,7 +41,7 @@ log.Println("Xray started")
 	go tunnelManager.StartTrojan()
 
 	// Client handlers
-	clientHandler := handlers.NewClientHandler()
+	clientHandler := handlers.NewClientHandler(tunnelManager)
 
 	http.HandleFunc("/", handlers.DashboardHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
