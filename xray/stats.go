@@ -16,7 +16,7 @@ import (
 type statsResponse struct {
 	Stat []struct {
 		Name  string `json:"name"`
-		Value string `json:"value"`
+		Value int64  `json:"value"`
 	} `json:"stat"`
 }
 
@@ -40,7 +40,6 @@ func (tc *TrafficCollector) Start() {
 
 		log.Println("TRAFFIC COLLECTOR: started")
 
-		// Give Xray a moment to start.
 		time.Sleep(5 * time.Second)
 
 		log.Println("TRAFFIC COLLECTOR: starting collection loop")
@@ -185,21 +184,7 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 
 	for _, stat := range response.Stat {
 
-		value, err := strconv.ParseInt(
-			strings.TrimSpace(stat.Value),
-			10,
-			64,
-		)
-
-		if err != nil {
-			log.Printf(
-				"STATS QUERY client-%d: invalid value %q: %v",
-				id,
-				stat.Value,
-				err,
-			)
-			continue
-		}
+		value := stat.Value
 
 		if strings.HasSuffix(stat.Name, ">>>uplink") {
 			uplink = value
@@ -290,7 +275,6 @@ func (tc *TrafficCollector) applyTraffic(id int64, delta int64) {
 			return
 		}
 
-		// Remove the user from Xray immediately.
 		if tc.manager != nil {
 			if err := tc.manager.Reload(); err != nil {
 				log.Println("failed to reload Xray after quota:", err)
