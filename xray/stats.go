@@ -38,8 +38,12 @@ func NewTrafficCollector(manager *Manager) *TrafficCollector {
 func (tc *TrafficCollector) Start() {
 	go func() {
 
+		log.Println("TRAFFIC COLLECTOR: started")
+
 		// Give Xray a moment to start.
 		time.Sleep(5 * time.Second)
+
+		log.Println("TRAFFIC COLLECTOR: starting collection loop")
 
 		ticker := time.NewTicker(5 * time.Second)
 		defer ticker.Stop()
@@ -54,31 +58,52 @@ func (tc *TrafficCollector) Start() {
 
 func (tc *TrafficCollector) collect() {
 
+	log.Println("TRAFFIC COLLECTOR: collect() running")
+
 	rows, err := database.DB.Query(`
 		SELECT id
 		FROM clients
 		WHERE enabled = 1
 	`)
 	if err != nil {
-		log.Println("traffic collector database error:", err)
+		log.Println("TRAFFIC COLLECTOR: database error:", err)
 		return
 	}
 
 	defer rows.Close()
+
+	clientCount := 0
 
 	for rows.Next() {
 
 		var id int64
 
 		if err := rows.Scan(&id); err != nil {
+			log.Println("TRAFFIC COLLECTOR: failed to scan client:", err)
 			continue
 		}
+
+		clientCount++
+
+		log.Printf("TRAFFIC COLLECTOR: querying client-%d", id)
 
 		up, down, err := queryUserTraffic(id)
 
 		if err != nil {
+			log.Printf(
+				"TRAFFIC COLLECTOR: stats query failed for client-%d: %v",
+				id,
+				err,
+			)
 			continue
 		}
+
+		log.Printf(
+			"TRAFFIC COLLECTOR: client-%d uplink=%d downlink=%d",
+			id,
+			up,
+			down,
+		)
 
 		current := up + down
 
@@ -99,10 +124,23 @@ func (tc *TrafficCollector) collect() {
 
 		tc.mu.Unlock()
 
+		log.Printf(
+			"TRAFFIC COLLECTOR: client-%d current=%d previous=%d delta=%d",
+			id,
+			current,
+			previous,
+			delta,
+		)
+
 		if delta > 0 {
 			tc.applyTraffic(id, delta)
 		}
 	}
+
+	log.Printf(
+		"TRAFFIC COLLECTOR: collection finished, clients=%d",
+		clientCount,
+	)
 }
 
 func queryUserTraffic(id int64) (int64, int64, error) {
@@ -118,7 +156,15 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 		"user>>>"+email+">>>traffic>>>",
 	)
 
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
+
+	log.Printf(
+		"STATS QUERY client-%d: err=%v output=%s",
+		id,
+		err,
+		strings.TrimSpace(string(output)),
+	)
+
 	if err != nil {
 		return 0, 0, err
 	}
@@ -126,6 +172,11 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 	var response statsResponse
 
 	if err := json.Unmarshal(output, &response); err != nil {
+		log.Printf(
+			"STATS QUERY client-%d: JSON parse error: %v",
+			id,
+			err,
+		)
 		return 0, 0, err
 	}
 
@@ -139,7 +190,14 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 			10,
 			64,
 		)
+
 		if err != nil {
+			log.Printf(
+				"STATS QUERY client-%d: invalid value %q: %v",
+				id,
+				stat.Value,
+				err,
+			)
 			continue
 		}
 
@@ -158,8 +216,8 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 func (tc *TrafficCollector) applyTraffic(id int64, delta int64) {
 
 	var (
-		used  int64
-		limit int64
+		used    int64
+		limit   int64
 		enabled int
 	)
 
@@ -176,6 +234,11 @@ func (tc *TrafficCollector) applyTraffic(id int64, delta int64) {
 	)
 
 	if err != nil {
+		log.Printf(
+			"TRAFFIC COLLECTOR: failed to read client-%d: %v",
+			id,
+			err,
+		)
 		return
 	}
 
@@ -199,6 +262,14 @@ func (tc *TrafficCollector) applyTraffic(id int64, delta int64) {
 		log.Println("failed to update traffic:", err)
 		return
 	}
+
+	log.Printf(
+		"TRAFFIC: client-%d added=%d total=%d limit=%d",
+		id,
+		delta,
+		newUsed,
+		limit,
+	)
 
 	// 0 means unlimited.
 	if limit > 0 && newUsed >= limit {
