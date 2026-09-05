@@ -13,39 +13,45 @@ import (
 
 func main() {
 
-	// Initialize database
 	if err := database.Init(); err != nil {
 		log.Fatal("Database initialization failed:", err)
 	}
 
-	// Start Xray
 	xrayManager := xray.NewManager()
 
 	if err := xrayManager.Start(); err != nil {
 		log.Fatal(err)
 	}
-	trafficCollector := xray.NewTrafficCollector(xrayManager)
-    trafficCollector.Start()
 
-	// Cloudflared tunnels
+	trafficCollector := xray.NewTrafficCollector(xrayManager)
+	trafficCollector.Start()
+
 	tunnelManager := cloudflare.NewTunnelManager()
 
 	go tunnelManager.StartVLESS()
 	go tunnelManager.StartTrojan()
 
-	// Client handlers
-	clientHandler := handlers.NewClientHandler(tunnelManager, xrayManager)
+	clientHandler := handlers.NewClientHandler(
+		tunnelManager,
+		xrayManager,
+		trafficCollector,
+	)
 
 	http.HandleFunc("/", handlers.DashboardHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 
-	// Client management
 	http.HandleFunc("/clients/create", clientHandler.Create)
 	http.HandleFunc("/clients/delete", clientHandler.Delete)
 	http.HandleFunc("/clients/config", clientHandler.Config)
+	http.HandleFunc("/clients/quota", clientHandler.EditQuota)
+	http.HandleFunc("/clients/reset", clientHandler.ResetTraffic)
 
-	// Static files
+	http.HandleFunc(
+		"/api/clients/status",
+		handlers.ClientsStatusHandler,
+	)
+
 	http.Handle(
 		"/static/",
 		http.StripPrefix(
