@@ -1,6 +1,8 @@
+```go
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"panel/database"
 	"time"
@@ -11,14 +13,14 @@ type DashboardData struct {
 }
 
 type ClientView struct {
-	ID          int64
-	Name        string
-	Protocol    string
-	TrafficUsed int64
+	ID           int64
+	Name         string
+	Protocol     string
+	TrafficUsed  int64
 	TrafficLimit int64
-	Enabled     bool
-	Online      bool
-	LastSeen    *time.Time
+	Enabled      bool
+	Online       bool
+	LastSeen     *time.Time
 }
 
 func DashboardHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +42,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		ORDER BY id DESC
 	`)
 	if err != nil {
+		log.Println("DASHBOARD DATABASE QUERY ERROR:", err)
 		http.Error(w, "failed to load clients", http.StatusInternalServerError)
 		return
 	}
@@ -63,6 +66,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 			&enabled,
 			&lastSeenStr,
 		); err != nil {
+			log.Println("DASHBOARD ROW SCAN ERROR:", err)
 			http.Error(w, "failed to read clients", http.StatusInternalServerError)
 			return
 		}
@@ -72,9 +76,9 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		if lastSeenStr != nil && *lastSeenStr != "" {
 			if t, err := parseDatabaseTime(*lastSeenStr); err == nil {
 				c.LastSeen = &t
-
-				// Online یعنی در 2 دقیقه اخیر ترافیک داشته.
 				c.Online = time.Since(t) <= 2*time.Minute
+			} else {
+				log.Println("DASHBOARD TIME PARSE ERROR:", err)
 			}
 		}
 
@@ -82,6 +86,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := rows.Err(); err != nil {
+		log.Println("DASHBOARD ROWS ERROR:", err)
 		http.Error(w, "failed to read clients", http.StatusInternalServerError)
 		return
 	}
@@ -91,6 +96,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := renderTemplate(w, "templates/dashboard.html", data); err != nil {
+		log.Println("DASHBOARD RENDER ERROR:", err)
 		http.Error(w, "failed to render dashboard", http.StatusInternalServerError)
 		return
 	}
@@ -116,3 +122,4 @@ func parseDatabaseTime(value string) (time.Time, error) {
 
 	return time.Time{}, err
 }
+```
