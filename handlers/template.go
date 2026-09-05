@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"path/filepath"
 )
 
 func renderTemplate(w http.ResponseWriter, file string, data interface{}) error {
@@ -13,7 +14,7 @@ func renderTemplate(w http.ResponseWriter, file string, data interface{}) error 
 		"percentage":  percentage,
 	}
 
-	tmpl, err := template.New(file).
+	tmpl, err := template.New(filepath.Base(file)).
 		Funcs(funcs).
 		ParseFiles(file)
 
@@ -21,7 +22,7 @@ func renderTemplate(w http.ResponseWriter, file string, data interface{}) error 
 		return err
 	}
 
-	return tmpl.Execute(w, data)
+	return tmpl.ExecuteTemplate(w, filepath.Base(file), data)
 }
 
 func formatBytes(bytes int64) string {
