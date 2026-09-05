@@ -1,4 +1,3 @@
-```go
 package handlers
 
 import (
@@ -122,4 +121,3 @@ func parseDatabaseTime(value string) (time.Time, error) {
 
 	return time.Time{}, err
 }
-```
