@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 
 	"panel/cloudflare"
 	"panel/database"
 	"panel/handlers"
+	"panel/xray"
 )
 
 func main() {
@@ -17,22 +17,13 @@ func main() {
 	if err := database.Init(); err != nil {
 		log.Fatal("Database initialization failed:", err)
 	}
+
 	// Start Xray
-xrayCmd := exec.Command(
-	"xray",
-	"run",
-	"-c",
-	"config/xray.json",
-)
+	xrayManager := xray.NewManager()
 
-xrayCmd.Stdout = os.Stdout
-xrayCmd.Stderr = os.Stderr
-
-if err := xrayCmd.Start(); err != nil {
-	log.Fatal("Failed to start Xray:", err)
-}
-
-log.Println("Xray started")
+	if err := xrayManager.Start(); err != nil {
+		log.Fatal(err)
+	}
 
 	// Cloudflared tunnels
 	tunnelManager := cloudflare.NewTunnelManager()
@@ -41,7 +32,7 @@ log.Println("Xray started")
 	go tunnelManager.StartTrojan()
 
 	// Client handlers
-	clientHandler := handlers.NewClientHandler(tunnelManager)
+	clientHandler := handlers.NewClientHandler(tunnelManager, xrayManager)
 
 	http.HandleFunc("/", handlers.DashboardHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
