@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"panel/database"
 )
 
@@ -24,7 +23,6 @@ type ClientHandler struct {
 		VLESSURL() string
 		TrojanURL() string
 	}
-
 	XrayManager XrayManager
 }
 
@@ -41,7 +39,9 @@ func NewClientHandler(
 	}
 }
 
+// Create creates a new client.
 func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -49,6 +49,7 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	name := strings.TrimSpace(r.FormValue("name"))
 	protocol := strings.TrimSpace(r.FormValue("protocol"))
+	quotaValue := strings.TrimSpace(r.FormValue("quota"))
 
 	if name == "" {
 		http.Error(w, "client name is required", http.StatusBadRequest)
@@ -57,6 +58,12 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	if protocol != "vless" && protocol != "trojan" {
 		http.Error(w, "invalid protocol", http.StatusBadRequest)
+		return
+	}
+
+	trafficLimit, err := parseQuotaGB(quotaValue)
+	if err != nil {
+		http.Error(w, "invalid quota", http.StatusBadRequest)
 		return
 	}
 
@@ -69,16 +76,27 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 		password = generatePassword(24)
 	}
 
-	_, err := database.DB.Exec(`
+	_, err = database.DB.Exec(`
 		INSERT INTO clients
-		(name, protocol, uuid, password, created_at)
-		VALUES (?, ?, ?, ?, ?)
+		(
+			name,
+			protocol,
+			uuid,
+			password,
+			created_at,
+			traffic_limit_bytes,
+			traffic_used_bytes,
+			enabled,
+			last_seen
+		)
+		VALUES (?, ?, ?, ?, ?, ?, 0, 1, NULL)
 	`,
 		name,
 		protocol,
 		clientUUID,
 		password,
 		time.Now(),
+		trafficLimit,
 	)
 
 	if err != nil {
@@ -86,7 +104,6 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update Xray configuration
 	if h.XrayManager != nil {
 		if err := h.XrayManager.Reload(); err != nil {
 			http.Error(
@@ -101,7 +118,9 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// Delete deletes a client.
 func (h *ClientHandler) Delete(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -123,7 +142,6 @@ func (h *ClientHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update Xray configuration
 	if h.XrayManager != nil {
 		if err := h.XrayManager.Reload(); err != nil {
 			http.Error(
@@ -138,7 +156,143 @@ func (h *ClientHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// EditQuota changes the traffic quota of a client.
+func (h *ClientHandler) EditQuota(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid client id", http.StatusBadRequest)
+		return
+	}
+
+	quotaValue := strings.TrimSpace(r.FormValue("quota"))
+
+	trafficLimit, err := parseQuotaGB(quotaValue)
+	if err != nil {
+		http.Error(w, "invalid quota", http.StatusBadRequest)
+		return
+	}
+
+	var trafficUsed int64
+
+	err = database.DB.QueryRow(`
+		SELECT traffic_used_bytes
+		FROM clients
+		WHERE id = ?
+	`, id).Scan(&trafficUsed)
+
+	if err != nil {
+		http.Error(w, "client not found", http.StatusNotFound)
+		return
+	}
+
+	enabled := 1
+
+	// 0 = unlimited.
+	// If the existing usage is already at/above the new limit,
+	// disable the client immediately.
+	if trafficLimit > 0 && trafficUsed >= trafficLimit {
+		enabled = 0
+	}
+
+	_, err = database.DB.Exec(`
+		UPDATE clients
+		SET traffic_limit_bytes = ?,
+		    enabled = ?
+		WHERE id = ?
+	`,
+		trafficLimit,
+		enabled,
+		id,
+	)
+
+	if err != nil {
+		http.Error(w, "failed to update quota", http.StatusInternalServerError)
+		return
+	}
+
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"quota was updated but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ResetTraffic resets the accumulated traffic of a client.
+func (h *ClientHandler) ResetTraffic(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid client id", http.StatusBadRequest)
+		return
+	}
+
+	var trafficLimit int64
+
+	err = database.DB.QueryRow(`
+		SELECT traffic_limit_bytes
+		FROM clients
+		WHERE id = ?
+	`, id).Scan(&trafficLimit)
+
+	if err != nil {
+		http.Error(w, "client not found", http.StatusNotFound)
+		return
+	}
+
+	_, err = database.DB.Exec(`
+		UPDATE clients
+		SET traffic_used_bytes = 0,
+		    last_seen = NULL,
+		    enabled = 1
+		WHERE id = ?
+	`,
+		id,
+	)
+
+	if err != nil {
+		http.Error(w, "failed to reset traffic", http.StatusInternalServerError)
+		return
+	}
+
+	// If quota itself is invalid/zero, client remains unlimited.
+	// Otherwise it is re-enabled because usage was reset to zero.
+	_ = trafficLimit
+
+	if h.XrayManager != nil {
+		if err := h.XrayManager.Reload(); err != nil {
+			http.Error(
+				w,
+				"traffic was reset but Xray reload failed: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Config generates the VLESS/Trojan configuration.
 func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -150,13 +304,21 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var name string
-	var protocol string
-	var clientUUID string
-	var password string
+	var (
+		name       string
+		protocol   string
+		clientUUID string
+		password   string
+		enabled    int
+	)
 
 	err = database.DB.QueryRow(`
-		SELECT name, protocol, uuid, password
+		SELECT
+			name,
+			protocol,
+			uuid,
+			password,
+			enabled
 		FROM clients
 		WHERE id = ?
 	`, id).Scan(
@@ -164,6 +326,7 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 		&protocol,
 		&clientUUID,
 		&password,
+		&enabled,
 	)
 
 	if err != nil {
@@ -171,8 +334,18 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A disabled client must not receive a usable configuration.
+	if enabled == 0 {
+		http.Error(w, "client is disabled", http.StatusForbidden)
+		return
+	}
+
 	if h.TunnelManager == nil {
-		http.Error(w, "tunnel manager unavailable", http.StatusServiceUnavailable)
+		http.Error(
+			w,
+			"tunnel manager unavailable",
+			http.StatusServiceUnavailable,
+		)
 		return
 	}
 
@@ -185,13 +358,21 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if tunnelURL == "" {
-		http.Error(w, "tunnel is not ready yet", http.StatusServiceUnavailable)
+		http.Error(
+			w,
+			"tunnel is not ready yet",
+			http.StatusServiceUnavailable,
+		)
 		return
 	}
 
 	parsedURL, err := url.Parse(tunnelURL)
 	if err != nil {
-		http.Error(w, "invalid tunnel URL", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"invalid tunnel URL",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
@@ -200,6 +381,7 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 	var result string
 
 	if protocol == "vless" {
+
 		result = fmt.Sprintf(
 			"vless://%s@%s:443?encryption=none&security=tls&type=ws&host=%s&path=%s&sni=%s#%s",
 			clientUUID,
@@ -209,7 +391,9 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 			url.QueryEscape(host),
 			url.QueryEscape(name),
 		)
+
 	} else {
+
 		result = fmt.Sprintf(
 			"trojan://%s@%s:443?security=tls&type=ws&host=%s&path=%s&sni=%s#%s",
 			url.QueryEscape(password),
@@ -221,11 +405,42 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set(
+		"Content-Type",
+		"text/plain; charset=utf-8",
+	)
+
 	_, _ = w.Write([]byte(result))
 }
 
+func parseQuotaGB(value string) (int64, error) {
+
+	if value == "" {
+		return 0, nil
+	}
+
+	gb, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	if gb < 0 {
+		return 0, fmt.Errorf("quota cannot be negative")
+	}
+
+	const bytesPerGB = 1000000000.0
+
+	bytes := gb * bytesPerGB
+
+	if bytes > float64(^uint64(0)>>1) {
+		return 0, fmt.Errorf("quota is too large")
+	}
+
+	return int64(bytes), nil
+}
+
 func generatePassword(length int) string {
+
 	b := make([]byte, length)
 
 	if _, err := rand.Read(b); err != nil {
