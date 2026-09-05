@@ -36,19 +36,15 @@ func NewTrafficCollector(manager *Manager) *TrafficCollector {
 
 func (tc *TrafficCollector) Start() {
 	go func() {
-
-		log.Println("TRAFFIC COLLECTOR: started")
+		log.Println("Traffic collector started")
 
 		time.Sleep(5 * time.Second)
-
-		log.Println("TRAFFIC COLLECTOR: starting collection loop")
 
 		ticker := time.NewTicker(5 * time.Second)
 		defer ticker.Stop()
 
 		for {
 			tc.collect()
-
 			<-ticker.C
 		}
 	}()
@@ -56,29 +52,23 @@ func (tc *TrafficCollector) Start() {
 
 func (tc *TrafficCollector) collect() {
 
-	log.Println("TRAFFIC COLLECTOR: collect() running")
-
-	// اول فقط ID کلاینت‌ها را می‌خوانیم.
-	// مهم: rows باید قبل از هر UPDATE/Query بعدی بسته شود،
-	// چون SQLite با یک connection کار می‌کند.
 	rows, err := database.DB.Query(`
 		SELECT id
 		FROM clients
 		WHERE enabled = 1
 	`)
 	if err != nil {
-		log.Println("TRAFFIC COLLECTOR: database error:", err)
+		log.Println("Traffic collector database error:", err)
 		return
 	}
 
 	var clientIDs []int64
 
 	for rows.Next() {
-
 		var id int64
 
 		if err := rows.Scan(&id); err != nil {
-			log.Println("TRAFFIC COLLECTOR: failed to scan client:", err)
+			log.Println("Traffic collector scan error:", err)
 			continue
 		}
 
@@ -86,42 +76,23 @@ func (tc *TrafficCollector) collect() {
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Println("TRAFFIC COLLECTOR: rows error:", err)
+		log.Println("Traffic collector rows error:", err)
 	}
 
 	rows.Close()
 
-	log.Printf(
-		"TRAFFIC COLLECTOR: collection found %d client(s)",
-		len(clientIDs),
-	)
-
-	// حالا که rows کاملاً بسته شده، می‌توانیم آزادانه
-	// Query و UPDATE انجام دهیم.
 	for _, id := range clientIDs {
-
-		log.Printf(
-			"TRAFFIC COLLECTOR: querying client-%d",
-			id,
-		)
 
 		up, down, err := queryUserTraffic(id)
 
 		if err != nil {
 			log.Printf(
-				"TRAFFIC COLLECTOR: stats query failed for client-%d: %v",
+				"Traffic stats query failed for client-%d: %v",
 				id,
 				err,
 			)
 			continue
 		}
-
-		log.Printf(
-			"TRAFFIC COLLECTOR: client-%d uplink=%d downlink=%d",
-			id,
-			up,
-			down,
-		)
 
 		current := up + down
 
@@ -134,27 +105,16 @@ func (tc *TrafficCollector) collect() {
 		if current >= previous {
 			delta = current - previous
 		} else {
-			// Xray restarted and its counters reset.
+			// Xray restarted and counters reset.
 			delta = current
 		}
 
 		tc.mu.Unlock()
 
-		log.Printf(
-			"TRAFFIC COLLECTOR: client-%d current=%d previous=%d delta=%d",
-			id,
-			current,
-			previous,
-			delta,
-		)
-
 		if delta > 0 {
-
-			// فقط اگر ثبت در دیتابیس موفق شد،
-			// previous را به‌روزرسانی می‌کنیم.
 			if err := tc.applyTraffic(id, delta); err != nil {
 				log.Printf(
-					"TRAFFIC COLLECTOR: failed to apply traffic for client-%d: %v",
+					"Failed to apply traffic for client-%d: %v",
 					id,
 					err,
 				)
@@ -166,11 +126,6 @@ func (tc *TrafficCollector) collect() {
 		tc.previous[id] = current
 		tc.mu.Unlock()
 	}
-
-	log.Printf(
-		"TRAFFIC COLLECTOR: collection finished, clients=%d",
-		len(clientIDs),
-	)
 }
 
 func queryUserTraffic(id int64) (int64, int64, error) {
@@ -188,13 +143,6 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 
 	output, err := cmd.CombinedOutput()
 
-	log.Printf(
-		"STATS QUERY client-%d: err=%v output=%s",
-		id,
-		err,
-		strings.TrimSpace(string(output)),
-	)
-
 	if err != nil {
 		return 0, 0, err
 	}
@@ -202,11 +150,6 @@ func queryUserTraffic(id int64) (int64, int64, error) {
 	var response statsResponse
 
 	if err := json.Unmarshal(output, &response); err != nil {
-		log.Printf(
-			"STATS QUERY client-%d: JSON parse error: %v",
-			id,
-			err,
-		)
 		return 0, 0, err
 	}
 
@@ -250,11 +193,6 @@ func (tc *TrafficCollector) applyTraffic(id int64, delta int64) error {
 	)
 
 	if err != nil {
-		log.Printf(
-			"TRAFFIC COLLECTOR: failed to read client-%d: %v",
-			id,
-			err,
-		)
 		return err
 	}
 
@@ -275,24 +213,16 @@ func (tc *TrafficCollector) applyTraffic(id int64, delta int64) error {
 	)
 
 	if err != nil {
-		log.Println("failed to update traffic:", err)
 		return err
 	}
 
-	log.Printf(
-		"TRAFFIC: client-%d added=%d total=%d limit=%d",
-		id,
-		delta,
-		newUsed,
-		limit,
-	)
-
-	// 0 means unlimited.
+	// 0 = unlimited
 	if limit > 0 && newUsed >= limit {
 
 		log.Printf(
-			"Client %d reached traffic limit. Disabling client.",
+			"Client %d reached traffic limit (%d bytes). Disabling client.",
 			id,
+			limit,
 		)
 
 		_, err := database.DB.Exec(`
@@ -302,13 +232,11 @@ func (tc *TrafficCollector) applyTraffic(id int64, delta int64) error {
 		`, id)
 
 		if err != nil {
-			log.Println("failed to disable client:", err)
 			return err
 		}
 
 		if tc.manager != nil {
 			if err := tc.manager.Reload(); err != nil {
-				log.Println("failed to reload Xray after quota:", err)
 				return err
 			}
 		}
