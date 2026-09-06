@@ -75,6 +75,17 @@ func Init() error {
 		}
 	}
 
+	// Settings table for persistent panel configuration.
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS settings (
+			key TEXT PRIMARY KEY,
+			value TEXT NOT NULL
+		)
+	`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
