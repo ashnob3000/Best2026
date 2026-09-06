@@ -1,534 +1,594 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Best2026 Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Best2026 Panel</title>
 
 <style>
-    * {
-        box-sizing: border-box;
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #ffffff;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    margin: 0;
+    color: #81C784;
+    letter-spacing: .3px;
+}
+
+.card {
+    background: #2a2a2a;
+    border: 1px solid #383838;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.25);
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #81C784;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input,
+select,
+button {
+    font-size: 15px;
+    padding: 11px 14px;
+    border-radius: 8px;
+}
+
+input,
+select {
+    border: 1px solid #454545;
+    background: #333333;
+    color: #ffffff;
+    outline: none;
+}
+
+input::placeholder {
+    color: #999999;
+}
+
+input:focus,
+select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76,175,80,.15);
+}
+
+input {
+    flex: 1;
+    min-width: 180px;
+}
+
+select {
+    min-width: 180px;
+}
+
+button {
+    cursor: pointer;
+    background: #333333;
+    color: #ffffff;
+    border: 1px solid #4a4a4a;
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        transform .1s ease;
+}
+
+button:hover {
+    background: #66BB6A;
+    border-color: #66BB6A;
+    color: #121212;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* CREATE CLIENT */
+
+.create-client-button {
+    background: #4CAF50;
+    color: #121212;
+    border-color: #4CAF50;
+    font-weight: bold;
+}
+
+.create-client-button:hover {
+    background: #66BB6A;
+    border-color: #66BB6A;
+    color: #121212;
+}
+
+/* CLIENT */
+
+.client {
+    padding: 20px 0;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.client:last-child {
+    border-bottom: none;
+}
+
+.client-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.client-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.client-name-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    background: #666666;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.05);
+}
+
+.status-dot.online {
+    background: #4CAF50;
+    box-shadow: 0 0 8px rgba(76,175,80,.65);
+    animation: onlinePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes onlinePulse {
+
+    0%, 100% {
+        opacity: .35;
+        transform: scale(.9);
+        box-shadow: 0 0 3px rgba(76,175,80,.25);
     }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #121212;
-        color: #ffffff;
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+        box-shadow: 0 0 10px rgba(76,175,80,.8);
     }
+
+}
+
+.client-name {
+    font-weight: bold;
+    font-size: 17px;
+    color: #ffffff;
+}
+
+.online-label {
+    color: #81C784 !important;
+    font-size: 12px;
+}
+
+.protocol {
+    margin-top: 5px;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* TRAFFIC */
+
+.traffic {
+    margin-top: 14px;
+}
+
+.traffic-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+.traffic-used {
+    font-weight: bold;
+    color: #81C784;
+}
+
+.traffic-limit {
+    color: #b0b0b0;
+}
+
+.progress {
+    width: 100%;
+    height: 9px;
+    background: #3a3a3a;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #4CAF50;
+    border-radius: 999px;
+    transition: width .3s ease;
+}
+
+.progress-bar.full {
+    background: #ef5350;
+}
+
+.unlimited {
+    color: #999999;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.disabled {
+    color: #ef5350;
+    font-weight: bold;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.quota-status {
+    display: none;
+}
+
+.quota-status.show {
+    display: block;
+}
+
+/* ACTIONS */
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 430px;
+}
+
+.actions button {
+    white-space: nowrap;
+}
+
+/* ENABLE / DISABLE */
+
+.status-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 50px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid #555555;
+    border-radius: 999px;
+    background: #353535;
+    cursor: pointer;
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.status-toggle .toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #777777;
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.status-toggle.enabled {
+    background: rgba(76,175,80,.22);
+    border-color: #4CAF50;
+}
+
+.status-toggle.enabled .toggle-knob {
+    transform: translateX(24px);
+    background: #4CAF50;
+    box-shadow: 0 0 9px rgba(76,175,80,.65);
+}
+
+.status-toggle.disabled {
+    background: #292929;
+    border-color: #4a4a4a;
+}
+
+.status-toggle.disabled .toggle-knob {
+    transform: translateX(0);
+    background: #666666;
+    box-shadow: none;
+}
+
+.status-toggle:hover {
+    background: rgba(76,175,80,.18);
+    border-color: #66BB6A;
+}
+
+.status-toggle.disabled:hover {
+    background: #353535;
+}
+
+.status-toggle:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+/* MORE */
+
+.more-wrapper {
+    position: relative;
+}
+
+.more-button {
+    min-width: 74px;
+    background: #333333;
+    color: #ffffff;
+}
+
+.more-menu {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: #242424;
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.more-menu.show {
+    display: flex;
+}
+
+.more-menu button {
+    background: #333333;
+    color: #ffffff;
+    border: 1px solid #454545;
+}
+
+.more-menu button:hover {
+    background: #66BB6A;
+    color: #121212;
+    border-color: #66BB6A;
+}
+
+.more-menu .danger {
+    color: #ef5350;
+    border-color: #713b3b;
+}
+
+.more-menu .danger:hover {
+    background: #ef5350;
+    color: #121212;
+    border-color: #ef5350;
+}
+
+.more-menu form {
+    margin: 0;
+}
+
+.empty {
+    color: #999999;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.hint {
+    color: #999999;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* QR MODAL */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(3px);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #2a2a2a;
+    border: 1px solid #404040;
+    border-radius: 14px;
+    padding: 25px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 15px 50px rgba(0,0,0,.45);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #81C784;
+}
+
+/*
+   QR container
+   مهم:
+   خود qrcodejs اندازه را کنترل می‌کند.
+   اینجا فقط محیط سفید و فضای امن اطراف QR را فراهم می‌کنیم.
+*/
+
+#qrcode {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 340px;
+    height: 340px;
+
+    max-width: 100%;
+    max-height: 340px;
+
+    margin: 15px auto 20px;
+
+    padding: 10px;
+
+    background: #ffffff;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+#qrcode img,
+#qrcode canvas {
+    display: block;
+
+    width: 320px !important;
+    height: 320px !important;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    image-rendering: pixelated;
+}
+
+/* QR CONFIG */
+
+.qr-config {
+    width: 100%;
+    min-height: 90px;
+    resize: vertical;
+    padding: 10px;
+
+    background: #181818;
+    color: #d1d5db;
+
+    border: 1px solid #3f3f3f;
+    border-radius: 8px;
+
+    font-size: 12px;
+
+    margin-bottom: 12px;
+
+    outline: none;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.close-modal {
+    background: #444444;
+    color: #ffffff;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
 
     .container {
-        max-width: 1050px;
-        margin: 40px auto;
-        padding: 20px;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
-
-    .header h1 {
-        margin: 0;
-        color: #81C784;
-        letter-spacing: .3px;
+        margin: 20px auto;
+        padding: 14px;
     }
 
     .card {
-        background: #2a2a2a;
-        border: 1px solid #383838;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 25px rgba(0,0,0,.25);
-    }
-
-    .card h2 {
-        margin-top: 0;
-        color: #81C784;
-    }
-
-    .form-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    input,
-    select,
-    button {
-        font-size: 15px;
-        padding: 11px 14px;
-        border-radius: 8px;
-    }
-
-    input,
-    select {
-        border: 1px solid #454545;
-        background: #333333;
-        color: #ffffff;
-        outline: none;
-    }
-
-    input::placeholder {
-        color: #999999;
-    }
-
-    input:focus,
-    select:focus {
-        border-color: #4CAF50;
-        box-shadow: 0 0 0 2px rgba(76,175,80,.15);
-    }
-
-    input {
-        flex: 1;
-        min-width: 180px;
-    }
-
-    select {
-        min-width: 180px;
-    }
-
-    button {
-        cursor: pointer;
-        background: #333333;
-        color: #ffffff;
-        border: 1px solid #4a4a4a;
-        transition:
-            background .15s ease,
-            border-color .15s ease,
-            color .15s ease,
-            transform .1s ease;
-    }
-
-    button:hover {
-        background: #66BB6A;
-        border-color: #66BB6A;
-        color: #121212;
-    }
-
-    button:active {
-        transform: translateY(1px);
-    }
-
-    /* CREATE CLIENT */
-
-    .create-client-button {
-        background: #4CAF50;
-        color: #121212;
-        border-color: #4CAF50;
-        font-weight: bold;
-    }
-
-    .create-client-button:hover {
-        background: #66BB6A;
-        border-color: #66BB6A;
-        color: #121212;
-    }
-
-    .client {
-        padding: 20px 0;
-        border-bottom: 1px solid #3a3a3a;
-    }
-
-    .client:last-child {
-        border-bottom: none;
+        padding: 16px;
     }
 
     .client-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
+        flex-direction: column;
     }
-
-    .client-info {
-        min-width: 0;
-        flex: 1;
-    }
-
-    .client-name-row {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        flex-wrap: wrap;
-    }
-
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        min-width: 10px;
-        border-radius: 50%;
-        background: #666666;
-        box-shadow: 0 0 0 2px rgba(255,255,255,.05);
-    }
-
-    .status-dot.online {
-        background: #4CAF50;
-        box-shadow: 0 0 8px rgba(76,175,80,.65);
-        animation: onlinePulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes onlinePulse {
-        0%, 100% {
-            opacity: .35;
-            transform: scale(.9);
-            box-shadow: 0 0 3px rgba(76,175,80,.25);
-        }
-
-        50% {
-            opacity: 1;
-            transform: scale(1.15);
-            box-shadow: 0 0 10px rgba(76,175,80,.8);
-        }
-    }
-
-    .client-name {
-        font-weight: bold;
-        font-size: 17px;
-        color: #ffffff;
-    }
-
-    .online-label {
-        color: #81C784 !important;
-        font-size: 12px;
-    }
-
-    .protocol {
-        margin-top: 5px;
-        color: #ffffff;
-        font-size: 14px;
-    }
-
-    /* TRAFFIC */
-
-    .traffic {
-        margin-top: 14px;
-    }
-
-    .traffic-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 7px;
-        font-size: 14px;
-    }
-
-    .traffic-used {
-        font-weight: bold;
-        color: #81C784;
-    }
-
-    .traffic-limit {
-        color: #b0b0b0;
-    }
-
-    .progress {
-        width: 100%;
-        height: 9px;
-        background: #3a3a3a;
-        border-radius: 999px;
-        overflow: hidden;
-    }
-
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: #4CAF50;
-        border-radius: 999px;
-        transition: width .3s ease;
-    }
-
-    .progress-bar.full {
-        background: #ef5350;
-    }
-
-    .unlimited {
-        color: #999999;
-        font-size: 13px;
-        margin-top: 7px;
-    }
-
-    .disabled {
-        color: #ef5350;
-        font-weight: bold;
-        font-size: 13px;
-        margin-top: 7px;
-    }
-
-    .quota-status {
-        display: none;
-    }
-
-    .quota-status.show {
-        display: block;
-    }
-
-    /* TOP ACTIONS */
 
     .actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        max-width: 430px;
+        justify-content: flex-start;
+        max-width: none;
+        width: 100%;
     }
-
-    .actions button {
-        white-space: nowrap;
-    }
-
-    /* ENABLE / DISABLE TOGGLE */
-
-    .status-toggle {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        width: 50px;
-        height: 26px;
-        padding: 0;
-        border: 1px solid #555555;
-        border-radius: 999px;
-        background: #353535;
-        cursor: pointer;
-        transition:
-            background .2s ease,
-            border-color .2s ease;
-    }
-
-    .status-toggle .toggle-knob {
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #777777;
-        transition:
-            transform .2s ease,
-            background .2s ease,
-            box-shadow .2s ease;
-    }
-
-    .status-toggle.enabled {
-        background: rgba(76,175,80,.22);
-        border-color: #4CAF50;
-    }
-
-    .status-toggle.enabled .toggle-knob {
-        transform: translateX(24px);
-        background: #4CAF50;
-        box-shadow: 0 0 9px rgba(76,175,80,.65);
-    }
-
-    .status-toggle.disabled {
-        background: #292929;
-        border-color: #4a4a4a;
-    }
-
-    .status-toggle.disabled .toggle-knob {
-        transform: translateX(0);
-        background: #666666;
-        box-shadow: none;
-    }
-
-    .status-toggle:hover {
-        background: rgba(76,175,80,.18);
-        border-color: #66BB6A;
-    }
-
-    .status-toggle.disabled:hover {
-        background: #353535;
-    }
-
-    .status-toggle:disabled {
-        opacity: .65;
-        cursor: not-allowed;
-    }
-
-    /* MORE */
 
     .more-wrapper {
-        position: relative;
-    }
-
-    .more-button {
-        min-width: 74px;
-        background: #333333;
-        color: #ffffff;
+        width: 100%;
     }
 
     .more-menu {
-        display: none;
-        margin-top: 12px;
-        padding: 12px;
-        background: #242424;
-        border: 1px solid #3a3a3a;
-        border-radius: 10px;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .more-menu.show {
-        display: flex;
-    }
-
-    .more-menu button {
-        background: #333333;
-        color: #ffffff;
-        border: 1px solid #454545;
-    }
-
-    .more-menu button:hover {
-        background: #66BB6A;
-        color: #121212;
-        border-color: #66BB6A;
-    }
-
-    .more-menu .danger {
-        color: #ef5350;
-        border-color: #713b3b;
-    }
-
-    .more-menu .danger:hover {
-        background: #ef5350;
-        color: #121212;
-        border-color: #ef5350;
-    }
-
-    .more-menu form {
-        margin: 0;
-    }
-
-    .empty {
-        color: #999999;
-        text-align: center;
-        padding: 30px 0;
-    }
-
-    .hint {
-        color: #999999;
-        font-size: 13px;
-        margin-top: 8px;
-    }
-
-    /* QR MODAL */
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        inset: 0;
-        background: rgba(0,0,0,.72);
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        backdrop-filter: blur(3px);
-    }
-
-    .modal.show {
-        display: flex;
-    }
-
-    .modal-content {
-        background: #2a2a2a;
-        border: 1px solid #404040;
-        border-radius: 14px;
-        padding: 25px;
-        width: 100%;
-        max-width: 420px;
-        text-align: center;
-        box-shadow: 0 15px 50px rgba(0,0,0,.45);
-    }
-
-    .modal-content h3 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: #81C784;
+        justify-content: flex-start;
     }
 
     #qrcode {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 15px auto 20px;
-        min-height: 256px;
-        background: #ffffff;
-        border-radius: 8px;
-        width: 256px;
-        padding: 4px;
+        width: 300px;
+        height: 300px;
+        padding: 8px;
     }
 
     #qrcode img,
     #qrcode canvas {
-        max-width: 256px;
-        max-height: 256px;
+        width: 284px !important;
+        height: 284px !important;
     }
 
-    .qr-config {
-        width: 100%;
-        min-height: 90px;
-        resize: vertical;
-        padding: 10px;
-        background: #181818;
-        color: #d1d5db;
-        border: 1px solid #3f3f3f;
-        border-radius: 8px;
-        font-size: 12px;
-        margin-bottom: 12px;
-        outline: none;
-    }
+}
 
-    .modal-actions {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .close-modal {
-        background: #444444;
-        color: #ffffff;
-    }
-
-    @media (max-width: 700px) {
-
-        .container {
-            margin: 20px auto;
-            padding: 14px;
-        }
-
-        .card {
-            padding: 16px;
-        }
-
-        .client-top {
-            flex-direction: column;
-        }
-
-        .actions {
-            justify-content: flex-start;
-            max-width: none;
-            width: 100%;
-        }
-
-        .more-wrapper {
-            width: 100%;
-        }
-
-        .more-menu {
-            justify-content: flex-start;
-        }
-
-    }
 </style>
 
-</head><body><div class="container"><div class="header">
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
     <h1>TINY HOLE</h1>
 </div>
-
 
 <!-- CREATE CLIENT -->
 
@@ -548,8 +608,15 @@
             >
 
             <select name="protocol" required>
-                <option value="vless">VLESS WS TLS</option>
-                <option value="trojan">Trojan WS TLS</option>
+
+                <option value="vless">
+                    VLESS WS TLS
+                </option>
+
+                <option value="trojan">
+                    Trojan WS TLS
+                </option>
+
             </select>
 
             <input
@@ -576,7 +643,6 @@
     </form>
 
 </div>
-
 
 <!-- CLIENTS -->
 
@@ -608,8 +674,6 @@
                             {{.Name}}
                         </div>
 
-                        <!-- ENABLE / DISABLE -->
-
                         <button
                             type="button"
                             class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"
@@ -617,12 +681,12 @@
                             aria-label="{{if .Enabled}}Disable client{{else}}Enable client{{end}}"
                             title="{{if .Enabled}}Disable{{else}}Enable{{end}}"
                         >
+
                             <span class="toggle-knob"></span>
+
                         </button>
 
-                        <span
-                            class="online-label"
-                        >
+                        <span class="online-label">
                             {{if .Online}}Online{{else}}Offline{{end}}
                         </span>
 
@@ -695,7 +759,6 @@
 
                 </div>
 
-
                 <!-- ACTIONS -->
 
                 <div class="actions">
@@ -714,8 +777,6 @@
                         📱 QR
                     </button>
 
-                    <!-- MORE -->
-
                     <button
                         type="button"
                         class="more-button"
@@ -727,7 +788,6 @@
                 </div>
 
             </div>
-
 
             <!-- MORE MENU -->
 
@@ -814,47 +874,61 @@
 
 </div>
 
-</div><!-- QR MODAL --><div
+</div>
+
+<!-- QR MODAL -->
+
+<div
     id="qrModal"
     class="modal"
     onclick="closeQR(event)"
-><div
-    class="modal-content"
-    onclick="event.stopPropagation()"
 >
 
-    <h3>Client QR Code</h3>
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()"
+    >
 
-    <div id="qrcode"></div>
+        <h3>Client QR Code</h3>
 
-    <textarea
-        id="qrConfig"
-        class="qr-config"
-        readonly
-    ></textarea>
+        <div id="qrcode"></div>
 
-    <div class="modal-actions">
+        <textarea
+            id="qrConfig"
+            class="qr-config"
+            readonly
+        ></textarea>
 
-        <button
-            type="button"
-            onclick="copyQRConfig()"
-        >
-            📋 Copy
-        </button>
+        <div class="modal-actions">
 
-        <button
-            type="button"
-            class="close-modal"
-            onclick="hideQR()"
-        >
-            Close
-        </button>
+            <button
+                type="button"
+                onclick="copyQRConfig()"
+            >
+                📋 Copy
+            </button>
+
+            <button
+                type="button"
+                class="close-modal"
+                onclick="hideQR()"
+            >
+                Close
+            </button>
+
+        </div>
 
     </div>
 
 </div>
 
-</div><!-- QR CODE LIBRARY --><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script>
+<!-- QR CODE LIBRARY -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+
+/* COPY CONFIG */
 
 async function copyConfig(id) {
 
@@ -867,7 +941,8 @@ async function copyConfig(id) {
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -877,7 +952,8 @@ async function copyConfig(id) {
             return;
         }
 
-        const config = await response.text();
+        const config =
+            await response.text();
 
         await navigator.clipboard.writeText(config);
 
@@ -885,11 +961,19 @@ async function copyConfig(id) {
 
     } catch (error) {
 
-        alert("Failed to copy configuration");
+        console.error(
+            "Copy config error:",
+            error
+        );
 
+        alert(
+            "Failed to copy configuration"
+        );
     }
 }
 
+
+/* SHOW QR */
 
 async function showQR(id) {
 
@@ -897,12 +981,16 @@ async function showQR(id) {
 
         const response = await fetch(
             "/clients/config?id=" +
-            encodeURIComponent(id)
+            encodeURIComponent(id),
+            {
+                cache: "no-store"
+            }
         );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -912,38 +1000,127 @@ async function showQR(id) {
             return;
         }
 
-        const config = await response.text();
+        const config =
+            await response.text();
+
+        if (!config || !config.trim()) {
+
+            alert(
+                "Empty configuration received."
+            );
+
+            return;
+        }
 
         const qrContainer =
             document.getElementById("qrcode");
 
+        const qrConfig =
+            document.getElementById("qrConfig");
+
+        const qrModal =
+            document.getElementById("qrModal");
+
+        if (!qrContainer || !qrConfig || !qrModal) {
+
+            alert(
+                "QR interface error."
+            );
+
+            return;
+        }
+
+        /*
+         * Clear previous QR completely.
+         */
+
         qrContainer.innerHTML = "";
 
-        document.getElementById(
-            "qrConfig"
-        ).value = config;
+        /*
+         * Show exact URI in textarea.
+         */
 
-        new QRCode(
-    qrContainer,
-    {
-        text: config,
-        width: 320,
-        height: 320,
-        correctLevel: QRCode.CorrectLevel.L
-    }
-);
+        qrConfig.value = config;
 
-        document
-            .getElementById("qrModal")
-            .classList.add("show");
+        /*
+         * Make sure QR library is actually loaded.
+         */
+
+        if (
+            typeof QRCode === "undefined"
+        ) {
+
+            alert(
+                "QR library failed to load."
+            );
+
+            console.error(
+                "QRCode library is not available."
+            );
+
+            return;
+        }
+
+        /*
+         * Generate QR.
+         *
+         * Low error correction gives us
+         * more room for long VLESS/Trojan URIs.
+         */
+
+        try {
+
+            new QRCode(
+                qrContainer,
+                {
+                    text: config,
+                    width: 320,
+                    height: 320,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel:
+                        QRCode.CorrectLevel.L
+                }
+            );
+
+        } catch (qrError) {
+
+            console.error(
+                "QR generation error:",
+                qrError
+            );
+
+            qrContainer.innerHTML = "";
+
+            alert(
+                "QR generation failed."
+            );
+
+            return;
+        }
+
+        /*
+         * Show modal only after QR
+         * was successfully generated.
+         */
+
+        qrModal.classList.add("show");
 
     } catch (error) {
 
-        alert("Failed to generate QR code");
+        console.error(
+            "Show QR error:",
+            error
+        );
 
+        alert(
+            "Failed to generate QR code."
+        );
     }
 }
 
+
+/* HIDE QR */
 
 function hideQR() {
 
@@ -954,17 +1131,22 @@ function hideQR() {
 }
 
 
+/* CLOSE QR BY CLICKING BACKDROP */
+
 function closeQR(event) {
 
     if (
         event.target ===
         document.getElementById("qrModal")
     ) {
+
         hideQR();
     }
 
 }
 
+
+/* COPY QR CONFIG */
 
 async function copyQRConfig() {
 
@@ -985,11 +1167,19 @@ async function copyQRConfig() {
 
     } catch (error) {
 
-        alert("Failed to copy configuration");
+        console.error(
+            "Copy QR config error:",
+            error
+        );
 
+        alert(
+            "Failed to copy configuration"
+        );
     }
 }
 
+
+/* MORE MENU */
 
 function toggleMore(id) {
 
@@ -1006,6 +1196,8 @@ function toggleMore(id) {
 }
 
 
+/* EDIT NAME */
+
 async function editName(id, currentName) {
 
     const value = prompt(
@@ -1017,37 +1209,50 @@ async function editName(id, currentName) {
         return;
     }
 
-    const name = value.trim();
+    const name =
+        value.trim();
 
     if (!name) {
 
-        alert("Name cannot be empty.");
+        alert(
+            "Name cannot be empty."
+        );
 
         return;
     }
 
     try {
 
-        const form = new URLSearchParams();
+        const form =
+            new URLSearchParams();
 
-        form.append("id", id);
-        form.append("name", name);
-
-        const response = await fetch(
-            "/clients/name",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-                body: form
-            }
+        form.append(
+            "id",
+            id
         );
+
+        form.append(
+            "name",
+            name
+        );
+
+        const response =
+            await fetch(
+                "/clients/name",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: form
+                }
+            );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -1061,11 +1266,14 @@ async function editName(id, currentName) {
 
     } catch (error) {
 
-        alert("Failed to rename client");
-
+        alert(
+            "Failed to rename client"
+        );
     }
 }
 
+
+/* CHANGE UUID */
 
 async function changeUUID(id) {
 
@@ -1075,30 +1283,37 @@ async function changeUUID(id) {
             "The current UUID will stop working."
         )
     ) {
+
         return;
     }
 
     try {
 
-        const form = new URLSearchParams();
+        const form =
+            new URLSearchParams();
 
-        form.append("id", id);
-
-        const response = await fetch(
-            "/clients/uuid",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-                body: form
-            }
+        form.append(
+            "id",
+            id
         );
+
+        const response =
+            await fetch(
+                "/clients/uuid",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: form
+                }
+            );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -1112,11 +1327,14 @@ async function changeUUID(id) {
 
     } catch (error) {
 
-        alert("Failed to change UUID");
-
+        alert(
+            "Failed to change UUID"
+        );
     }
 }
 
+
+/* CHANGE PASSWORD */
 
 async function changePassword(id) {
 
@@ -1126,30 +1344,37 @@ async function changePassword(id) {
             "The current password will stop working."
         )
     ) {
+
         return;
     }
 
     try {
 
-        const form = new URLSearchParams();
+        const form =
+            new URLSearchParams();
 
-        form.append("id", id);
-
-        const response = await fetch(
-            "/clients/password",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-                body: form
-            }
+        form.append(
+            "id",
+            id
         );
+
+        const response =
+            await fetch(
+                "/clients/password",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: form
+                }
+            );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -1163,13 +1388,19 @@ async function changePassword(id) {
 
     } catch (error) {
 
-        alert("Failed to change password");
-
+        alert(
+            "Failed to change password"
+        );
     }
 }
 
 
-async function toggleClientStatus(id, currentlyEnabled) {
+/* TOGGLE CLIENT */
+
+async function toggleClientStatus(
+    id,
+    currentlyEnabled
+) {
 
     const action =
         currentlyEnabled
@@ -1178,26 +1409,36 @@ async function toggleClientStatus(id, currentlyEnabled) {
 
     try {
 
-        const form = new URLSearchParams();
+        const form =
+            new URLSearchParams();
 
-        form.append("id", id);
-        form.append("action", action);
-
-        const response = await fetch(
-            "/clients/status",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-                body: form
-            }
+        form.append(
+            "id",
+            id
         );
+
+        form.append(
+            "action",
+            action
+        );
+
+        const response =
+            await fetch(
+                "/clients/status",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: form
+                }
+            );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -1211,70 +1452,98 @@ async function toggleClientStatus(id, currentlyEnabled) {
 
     } catch (error) {
 
-        alert("Failed to change client status");
-
+        alert(
+            "Failed to change client status"
+        );
     }
 }
 
 
-async function setClientStatus(id, action) {
+async function setClientStatus(
+    id,
+    action
+) {
 
     await toggleClientStatus(
         id,
         action === "disable"
     );
-
 }
 
 
-async function editQuota(id, currentBytes) {
+/* EDIT QUOTA */
+
+async function editQuota(
+    id,
+    currentBytes
+) {
 
     const currentGB =
         currentBytes > 0
-            ? (currentBytes / 1000000000)
+            ? (
+                currentBytes /
+                1000000000
+            )
             : 0;
 
-    const value = prompt(
-        "Enter traffic quota in GB.\n\n" +
-        "Use 0 for unlimited.",
-        currentGB
-    );
+    const value =
+        prompt(
+            "Enter traffic quota in GB.\n\n" +
+            "Use 0 for unlimited.",
+            currentGB
+        );
 
     if (value === null) {
         return;
     }
 
-    const quota = parseFloat(value);
+    const quota =
+        parseFloat(value);
 
-    if (isNaN(quota) || quota < 0) {
+    if (
+        isNaN(quota) ||
+        quota < 0
+    ) {
 
-        alert("Invalid quota.");
+        alert(
+            "Invalid quota."
+        );
 
         return;
     }
 
     try {
 
-        const form = new URLSearchParams();
+        const form =
+            new URLSearchParams();
 
-        form.append("id", id);
-        form.append("quota", quota);
-
-        const response = await fetch(
-            "/clients/quota",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-                body: form
-            }
+        form.append(
+            "id",
+            id
         );
+
+        form.append(
+            "quota",
+            quota
+        );
+
+        const response =
+            await fetch(
+                "/clients/quota",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: form
+                }
+            );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -1288,11 +1557,14 @@ async function editQuota(id, currentBytes) {
 
     } catch (error) {
 
-        alert("Failed to update quota");
-
+        alert(
+            "Failed to update quota"
+        );
     }
 }
 
+
+/* RESET TRAFFIC */
 
 async function resetTraffic(id) {
 
@@ -1301,30 +1573,37 @@ async function resetTraffic(id) {
             "Reset all traffic usage for this client?"
         )
     ) {
+
         return;
     }
 
     try {
 
-        const form = new URLSearchParams();
+        const form =
+            new URLSearchParams();
 
-        form.append("id", id);
-
-        const response = await fetch(
-            "/clients/reset",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-                body: form
-            }
+        form.append(
+            "id",
+            id
         );
+
+        const response =
+            await fetch(
+                "/clients/reset",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: form
+                }
+            );
 
         if (!response.ok) {
 
-            const message = await response.text();
+            const message =
+                await response.text();
 
             alert(
                 message ||
@@ -1338,30 +1617,38 @@ async function resetTraffic(id) {
 
     } catch (error) {
 
-        alert("Failed to reset traffic");
-
+        alert(
+            "Failed to reset traffic"
+        );
     }
 }
 
+
+/* LIVE STATUS */
 
 async function updateClientStatus() {
 
     try {
 
-        const response = await fetch(
-            "/api/clients/status",
-            {
-                cache: "no-store"
-            }
-        );
+        const response =
+            await fetch(
+                "/api/clients/status",
+                {
+                    cache: "no-store"
+                }
+            );
 
         if (!response.ok) {
             return;
         }
 
-        const clients = await response.json();
+        const clients =
+            await response.json();
 
-        for (const client of clients) {
+        for (
+            const client
+            of clients
+        ) {
 
             const element =
                 document.querySelector(
@@ -1469,10 +1756,12 @@ async function updateClientStatus() {
 
                     statusToggle.onclick =
                         function() {
+
                             toggleClientStatus(
                                 client.id,
                                 true
                             );
+
                         };
 
                 } else {
@@ -1495,15 +1784,19 @@ async function updateClientStatus() {
 
                     statusToggle.onclick =
                         function() {
+
                             toggleClientStatus(
                                 client.id,
                                 false
                             );
+
                         };
                 }
             }
 
-            if (client.traffic_limit > 0) {
+            if (
+                client.traffic_limit > 0
+            ) {
 
                 if (limit) {
 
@@ -1595,9 +1888,12 @@ async function updateClientStatus() {
 }
 
 
+/* FORMAT BYTES */
+
 function formatBytes(bytes) {
 
     if (bytes < 1000) {
+
         return bytes + " B";
     }
 
@@ -1618,30 +1914,4 @@ function formatBytes(bytes) {
     }
 
     return (
-        (bytes / 1000000000).toFixed(2) +
-        " GB"
-    );
-}
-
-
-updateClientStatus();
-
-setInterval(
-    updateClientStatus,
-    5000
-);
-
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Escape") {
-            hideQR();
-        }
-
-    }
-);
-
-</script></body>
-</html>
+        (
