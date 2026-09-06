@@ -1,7 +1,12 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Best2026 Panel</title><style>
+    <title>Best2026 Panel</title>
+
+    <style>
+
 * {
     box-sizing: border-box;
 }
@@ -145,12 +150,16 @@ button:active {
     flex: 1;
 }
 
+/* CLIENT STATUS ROW */
+
 .client-name-row {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 12px;
     flex-wrap: wrap;
 }
+
+/* BLINKING ONLINE DOT */
 
 .status-dot {
     width: 10px;
@@ -168,6 +177,7 @@ button:active {
 }
 
 @keyframes onlinePulse {
+
     0%, 100% {
         opacity: .35;
         transform: scale(.9);
@@ -179,7 +189,10 @@ button:active {
         transform: scale(1.15);
         box-shadow: 0 0 10px rgba(76,175,80,.8);
     }
+
 }
+
+/* CLIENT NAME */
 
 .client-name {
     font-weight: bold;
@@ -187,12 +200,11 @@ button:active {
     color: #ffffff;
 }
 
+/* ONLINE / OFFLINE TEXT */
+
 .online-label {
     color: #4CAF50 !important;
     font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
 }
 
 .online-label.offline {
@@ -529,1024 +541,1110 @@ button:active {
 
 }
 
-</style>
-</head><body><div class="container"><div class="header">
-    <h1>TINY HOLE</h1>
-</div><!-- CREATE CLIENT --><div class="card"><h2>Create Client</h2><form method="POST" action="/clients/create"><div class="form-row">
+    </style>
+</head>
 
-    <input
-        type="text"
-        name="name"
-        placeholder="Client name"
-        required
-    >
+<body>
 
-    <select name="protocol" required>
-        <option value="vless">VLESS WS TLS</option>
-        <option value="trojan">Trojan WS TLS</option>
-    </select>
+<div class="container">
 
-    <input
-        type="number"
-        name="quota"
-        placeholder="Quota (GB)"
-        min="0"
-        step="0.1"
-    >
+    <div class="header">
+        <h1>TINY HOLE</h1>
+    </div>
 
-    <button
-        type="submit"
-        class="create-client-button"
-    >
-        Create Client
-    </button>
+    <!-- CREATE CLIENT -->
 
-</div>
+    <div class="card">
 
-<div class="hint">
-    Leave quota empty or set it to 0 for unlimited traffic.
-</div>
+        <h2>Create Client</h2>
 
-</form></div><!-- CLIENTS --><div class="card"><h2>Clients</h2>{{if .Clients}}
+        <form method="POST" action="/clients/create">
 
-{{range .Clients}}
+            <div class="form-row">
 
-<div
-    class="client"
-    data-client-id="{{.ID}}"
->
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Client name"
+                    required
+                >
 
-    <div class="client-top">
+                <select name="protocol" required>
+                    <option value="vless">VLESS WS TLS</option>
+                    <option value="trojan">Trojan WS TLS</option>
+                </select>
 
-        <div class="client-info">
+                <input
+                    type="number"
+                    name="quota"
+                    placeholder="Quota (GB)"
+                    min="0"
+                    step="0.1"
+                >
 
-            <div class="client-name-row">
+                <button
+                    type="submit"
+                    class="create-client-button"
+                >
+                    Create Client
+                </button>
+
+            </div>
+
+            <div class="hint">
+                Leave quota empty or set it to 0 for unlimited traffic.
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- CLIENTS -->
+
+    <div class="card">
+
+        <h2>Clients</h2>
+
+        {{if .Clients}}
+
+        {{range .Clients}}
+
+        <div
+            class="client"
+            data-client-id="{{.ID}}"
+        >
+
+            <div class="client-top">
+
+                <div class="client-info">
+
+                    <!-- STATUS ROW -->
+
+                    <div class="client-name-row">
+
+                        <!-- ENABLE / DISABLE -->
+
+                        <button
+                            type="button"
+                            class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"
+                            onclick="toggleClientStatus({{.ID}}, {{if .Enabled}}true{{else}}false{{end}})"
+                            aria-label="{{if .Enabled}}Disable client{{else}}Enable client{{end}}"
+                            title="{{if .Enabled}}Disable{{else}}Enable{{end}}"
+                        >
+                            <span class="toggle-knob"></span>
+                        </button>
+
+                        <!-- BLINKING STATUS DOT -->
+
+                        <span
+                            class="status-dot {{if .Online}}online{{end}}"
+                            title="{{if .Online}}Online{{else}}Offline{{end}}"
+                        ></span>
+
+                        <!-- ONLINE / OFFLINE -->
+
+                        <span
+                            class="online-label {{if not .Online}}offline{{end}}"
+                        >
+                            {{if .Online}}Online{{else}}Offline{{end}}
+                        </span>
+
+                        <!-- CONFIG NAME -->
+
+                        <div class="client-name">
+                            {{.Name}}
+                        </div>
+
+                    </div>
+
+                    <div class="protocol">
+
+                        {{if eq .Protocol "vless"}}
+                            VLESS • WS • TLS
+                        {{else}}
+                            Trojan • WS • TLS
+                        {{end}}
+
+                    </div>
+
+                    <!-- TRAFFIC -->
+
+                    <div class="traffic">
+
+                        {{if gt .TrafficLimit 0}}
+
+                            <div class="traffic-header">
+
+                                <span class="traffic-used">
+                                    {{formatBytes .TrafficUsed}}
+                                </span>
+
+                                <span class="traffic-limit">
+                                    / {{formatBytes .TrafficLimit}}
+                                </span>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div
+                                    class="progress-bar {{if ge .TrafficUsed .TrafficLimit}}full{{end}}"
+                                    style="width: {{percentage .TrafficUsed .TrafficLimit}}%;"
+                                ></div>
+
+                            </div>
+
+                        {{else}}
+
+                            <div class="traffic-header">
+
+                                <span class="traffic-used">
+                                    {{formatBytes .TrafficUsed}}
+                                </span>
+
+                                <span class="traffic-limit">
+                                    Unlimited
+                                </span>
+
+                            </div>
+
+                            <div class="unlimited">
+                                No traffic limit
+                            </div>
+
+                        {{end}}
+
+                        <div
+                            class="quota-status disabled {{if not .Enabled}}show{{end}}"
+                        >
+                            Disabled
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ACTIONS -->
+
+                <div class="actions">
+
+                    <button
+                        type="button"
+                        onclick="copyConfig({{.ID}})"
+                    >
+                        📋 Copy
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showQR({{.ID}})"
+                    >
+                        📱 QR
+                    </button>
+
+                    <!-- MORE -->
+
+                    <button
+                        type="button"
+                        class="more-button"
+                        onclick="toggleMore({{.ID}})"
+                    >
+                        More ⋮
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- MORE MENU -->
+
+            <div
+                class="more-menu"
+                id="more-{{.ID}}"
+            >
 
                 <button
                     type="button"
-                    class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"
-                    onclick="toggleClientStatus({{.ID}}, {{if .Enabled}}true{{else}}false{{end}})"
-                    aria-label="{{if .Enabled}}Disable client{{else}}Enable client{{end}}"
-                    title="{{if .Enabled}}Disable{{else}}Enable{{end}}"
+                    onclick="editName({{.ID}}, {{printf "%q" .Name}})"
                 >
-                    <span class="toggle-knob"></span>
+                    Rename
                 </button>
 
-                <span
-                    class="online-label {{if not .Online}}offline{{end}}"
-                >
-                    <span
-                        class="status-dot {{if .Online}}online{{end}}"
-                        title="{{if .Online}}Online{{else}}Offline{{end}}"
-                    ></span>
-
-                    {{if .Online}}Online{{else}}Offline{{end}}
-                </span>
-
-                <div class="client-name">
-                    {{.Name}}
-                </div>
-
-            </div>
-
-            <div class="protocol">
-
                 {{if eq .Protocol "vless"}}
-                    VLESS • WS • TLS
-                {{else}}
-                    Trojan • WS • TLS
-                {{end}}
 
-            </div>
-
-            <!-- TRAFFIC -->
-
-            <div class="traffic">
-
-                {{if gt .TrafficLimit 0}}
-
-                    <div class="traffic-header">
-
-                        <span class="traffic-used">
-                            {{formatBytes .TrafficUsed}}
-                        </span>
-
-                        <span class="traffic-limit">
-                            / {{formatBytes .TrafficLimit}}
-                        </span>
-
-                    </div>
-
-                    <div class="progress">
-
-                        <div
-                            class="progress-bar {{if ge .TrafficUsed .TrafficLimit}}full{{end}}"
-                            style="width: {{percentage .TrafficUsed .TrafficLimit}}%;"
-                        ></div>
-
-                    </div>
-
-                {{else}}
-
-                    <div class="traffic-header">
-
-                        <span class="traffic-used">
-                            {{formatBytes .TrafficUsed}}
-                        </span>
-
-                        <span class="traffic-limit">
-                            Unlimited
-                        </span>
-
-                    </div>
-
-                    <div class="unlimited">
-                        No traffic limit
-                    </div>
-
-                {{end}}
-
-                <div
-                    class="quota-status disabled {{if not .Enabled}}show{{end}}"
+                <button
+                    type="button"
+                    onclick="changeUUID({{.ID}})"
                 >
-                    Disabled
-                </div>
+                    New UUID
+                </button>
+
+                {{else}}
+
+                <button
+                    type="button"
+                    onclick="changePassword({{.ID}})"
+                >
+                    New Password
+                </button>
+
+                {{end}}
+
+                <button
+                    type="button"
+                    onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
+                >
+                    Quota
+                </button>
+
+                <button
+                    type="button"
+                    onclick="resetTraffic({{.ID}})"
+                >
+                    Reset Traffic
+                </button>
+
+                <form
+                    method="POST"
+                    action="/clients/delete"
+                    onsubmit="return confirm('Delete this client?');"
+                >
+
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="{{.ID}}"
+                    >
+
+                    <button
+                        class="danger"
+                        type="submit"
+                    >
+                        Delete
+                    </button>
+
+                </form>
 
             </div>
 
         </div>
 
-        <!-- ACTIONS -->
+        {{end}}
 
-        <div class="actions">
+        {{else}}
+
+        <div class="empty">
+            No clients yet.
+        </div>
+
+        {{end}}
+
+    </div>
+
+</div>
+
+<!-- QR MODAL -->
+
+<div
+    id="qrModal"
+    class="modal"
+    onclick="closeQR(event)"
+>
+
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <h3>Client QR Code</h3>
+
+        <div id="qrcode"></div>
+
+        <textarea
+            id="qrConfig"
+            class="qr-config"
+            readonly
+        ></textarea>
+
+        <div class="modal-actions">
 
             <button
                 type="button"
-                onclick="copyConfig({{.ID}})"
+                onclick="copyQRConfig()"
             >
                 📋 Copy
             </button>
 
             <button
                 type="button"
-                onclick="showQR({{.ID}})"
+                class="close-modal"
+                onclick="hideQR()"
             >
-                📱 QR
-            </button>
-
-            <!-- MORE -->
-
-            <button
-                type="button"
-                class="more-button"
-                onclick="toggleMore({{.ID}})"
-            >
-                More ⋮
+                Close
             </button>
 
         </div>
 
     </div>
 
-    <!-- MORE MENU -->
-
-    <div
-        class="more-menu"
-        id="more-{{.ID}}"
-    >
-
-        <button
-            type="button"
-            onclick="editName({{.ID}}, {{printf "%q" .Name}})"
-        >
-            Rename
-        </button>
-
-        {{if eq .Protocol "vless"}}
-
-        <button
-            type="button"
-            onclick="changeUUID({{.ID}})"
-        >
-            New UUID
-        </button>
-
-        {{else}}
-
-        <button
-            type="button"
-            onclick="changePassword({{.ID}})"
-        >
-            New Password
-        </button>
-
-        {{end}}
-
-        <button
-            type="button"
-            onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
-        >
-            Quota
-        </button>
-
-        <button
-            type="button"
-            onclick="resetTraffic({{.ID}})"
-        >
-            Reset Traffic
-        </button>
-
-        <form
-            method="POST"
-            action="/clients/delete"
-            onsubmit="return confirm('Delete this client?');"
-        >
-
-            <input
-                type="hidden"
-                name="id"
-                value="{{.ID}}"
-            >
-
-            <button
-                class="danger"
-                type="submit"
-            >
-                Delete
-            </button>
-
-        </form>
-
-    </div>
-
 </div>
 
-{{end}}
+<!-- QR CODE LIBRARY -->
 
-{{else}}
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-<div class="empty">
-    No clients yet.
-</div>
-
-{{end}}
-
-</div></div><!-- QR MODAL --><div
-    id="qrModal"
-    class="modal"
-    onclick="closeQR(event)"
-><div
-    class="modal-content"
-    onclick="event.stopPropagation()"
-><h3>Client QR Code</h3><div id="qrcode"></div><textarea
-    id="qrConfig"
-    class="qr-config"
-    readonly
-></textarea><div class="modal-actions"><button
-    type="button"
-    onclick="copyQRConfig()"
->
-    📋 Copy
-</button>
-
-<button
-    type="button"
-    class="close-modal"
-    onclick="hideQR()"
->
-    Close
-</button>
-
-</div></div></div><!-- QR CODE LIBRARY --><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script>
+<script>
 
 async function copyConfig(id) {
 
-try {
+    try {
 
-    const response = await fetch(
-        "/clients/config?id=" +
-        encodeURIComponent(id)
-    );
-
-    if (!response.ok) {
-
-        const message = await response.text();
-
-        alert(
-            message ||
-            "Failed to generate configuration"
+        const response = await fetch(
+            "/clients/config?id=" +
+            encodeURIComponent(id)
         );
 
-        return;
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to generate configuration"
+            );
+
+            return;
+        }
+
+        const config = await response.text();
+
+        await navigator.clipboard.writeText(config);
+
+        alert("Configuration copied!");
+
+    } catch (error) {
+
+        alert("Failed to copy configuration");
+
     }
-
-    const config = await response.text();
-
-    await navigator.clipboard.writeText(config);
-
-    alert("Configuration copied!");
-
-} catch (error) {
-
-    alert("Failed to copy configuration");
-
-}
 
 }
 
 
 async function showQR(id) {
 
-try {
+    try {
 
-    const response = await fetch(
-        "/clients/config?id=" +
-        encodeURIComponent(id)
-    );
-
-    if (!response.ok) {
-
-        const message = await response.text();
-
-        alert(
-            message ||
-            "Failed to generate configuration"
+        const response = await fetch(
+            "/clients/config?id=" +
+            encodeURIComponent(id)
         );
 
-        return;
-    }
+        if (!response.ok) {
 
-    const config = await response.text();
+            const message = await response.text();
 
-    const qrContainer =
-        document.getElementById("qrcode");
+            alert(
+                message ||
+                "Failed to generate configuration"
+            );
 
-    qrContainer.innerHTML = "";
-
-    document.getElementById(
-        "qrConfig"
-    ).value = config;
-
-    new QRCode(
-        qrContainer,
-        {
-            text: config,
-            width: 320,
-            height: 320,
-            correctLevel: QRCode.CorrectLevel.L
+            return;
         }
-    );
 
-    document
-        .getElementById("qrModal")
-        .classList.add("show");
+        const config = await response.text();
 
-} catch (error) {
+        const qrContainer =
+            document.getElementById("qrcode");
 
-    alert("Failed to generate QR code");
+        qrContainer.innerHTML = "";
 
-}
+        document.getElementById(
+            "qrConfig"
+        ).value = config;
+
+        new QRCode(
+            qrContainer,
+            {
+                text: config,
+                width: 320,
+                height: 320,
+                correctLevel: QRCode.CorrectLevel.L
+            }
+        );
+
+        document
+            .getElementById("qrModal")
+            .classList.add("show");
+
+    } catch (error) {
+
+        alert("Failed to generate QR code");
+
+    }
 
 }
 
 
 function hideQR() {
 
-document
-    .getElementById("qrModal")
-    .classList.remove("show");
+    document
+        .getElementById("qrModal")
+        .classList.remove("show");
 
 }
 
 
 function closeQR(event) {
 
-if (
-    event.target ===
-    document.getElementById("qrModal")
-) {
+    if (
+        event.target ===
+        document.getElementById("qrModal")
+    ) {
 
-    hideQR();
+        hideQR();
 
-}
+    }
 
 }
 
 
 async function copyQRConfig() {
 
-const config =
-    document.getElementById(
-        "qrConfig"
-    ).value;
+    const config =
+        document.getElementById(
+            "qrConfig"
+        ).value;
 
-if (!config) {
-    return;
-}
+    if (!config) {
+        return;
+    }
 
-try {
+    try {
 
-    await navigator.clipboard.writeText(config);
+        await navigator.clipboard.writeText(config);
 
-    alert("Configuration copied!");
+        alert("Configuration copied!");
 
-} catch (error) {
+    } catch (error) {
 
-    alert("Failed to copy configuration");
+        alert("Failed to copy configuration");
 
-}
+    }
 
 }
 
 
 function toggleMore(id) {
 
-const menu =
-    document.getElementById(
-        "more-" + id
-    );
+    const menu =
+        document.getElementById(
+            "more-" + id
+        );
 
-if (!menu) {
-    return;
-}
+    if (!menu) {
+        return;
+    }
 
-menu.classList.toggle("show");
+    menu.classList.toggle("show");
 
 }
 
 
 async function editName(id, currentName) {
 
-const value = prompt(
-    "Enter new client name:",
-    currentName
-);
-
-if (value === null) {
-    return;
-}
-
-const name = value.trim();
-
-if (!name) {
-
-    alert("Name cannot be empty.");
-
-    return;
-}
-
-try {
-
-    const form = new URLSearchParams();
-
-    form.append("id", id);
-    form.append("name", name);
-
-    const response = await fetch(
-        "/clients/name",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-            body: form
-        }
+    const value = prompt(
+        "Enter new client name:",
+        currentName
     );
 
-    if (!response.ok) {
+    if (value === null) {
+        return;
+    }
 
-        const message = await response.text();
+    const name = value.trim();
 
-        alert(
-            message ||
-            "Failed to rename client"
-        );
+    if (!name) {
+
+        alert("Name cannot be empty.");
 
         return;
     }
 
-    window.location.reload();
+    try {
 
-} catch (error) {
+        const form = new URLSearchParams();
 
-    alert("Failed to rename client");
+        form.append("id", id);
+        form.append("name", name);
 
-}
+        const response = await fetch(
+            "/clients/name",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to rename client"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to rename client");
+
+    }
 
 }
 
 
 async function changeUUID(id) {
 
-if (
-    !confirm(
-        "Generate a new UUID for this VLESS client?\n\n" +
-        "The current UUID will stop working."
-    )
-) {
-
-    return;
-
-}
-
-try {
-
-    const form = new URLSearchParams();
-
-    form.append("id", id);
-
-    const response = await fetch(
-        "/clients/uuid",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-            body: form
-        }
-    );
-
-    if (!response.ok) {
-
-        const message = await response.text();
-
-        alert(
-            message ||
-            "Failed to change UUID"
-        );
+    if (
+        !confirm(
+            "Generate a new UUID for this VLESS client?\n\n" +
+            "The current UUID will stop working."
+        )
+    ) {
 
         return;
+
     }
 
-    window.location.reload();
+    try {
 
-} catch (error) {
+        const form = new URLSearchParams();
 
-    alert("Failed to change UUID");
+        form.append("id", id);
 
-}
+        const response = await fetch(
+            "/clients/uuid",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to change UUID"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to change UUID");
+
+    }
 
 }
 
 
 async function changePassword(id) {
 
-if (
-    !confirm(
-        "Generate a new password for this Trojan client?\n\n" +
-        "The current password will stop working."
-    )
-) {
-
-    return;
-
-}
-
-try {
-
-    const form = new URLSearchParams();
-
-    form.append("id", id);
-
-    const response = await fetch(
-        "/clients/password",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-            body: form
-        }
-    );
-
-    if (!response.ok) {
-
-        const message = await response.text();
-
-        alert(
-            message ||
-            "Failed to change password"
-        );
+    if (
+        !confirm(
+            "Generate a new password for this Trojan client?\n\n" +
+            "The current password will stop working."
+        )
+    ) {
 
         return;
+
     }
 
-    window.location.reload();
+    try {
 
-} catch (error) {
+        const form = new URLSearchParams();
 
-    alert("Failed to change password");
+        form.append("id", id);
 
-}
+        const response = await fetch(
+            "/clients/password",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to change password"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to change password");
+
+    }
 
 }
 
 
 async function toggleClientStatus(id, currentlyEnabled) {
 
-const action =
-    currentlyEnabled
-        ? "disable"
-        : "enable";
+    const action =
+        currentlyEnabled
+            ? "disable"
+            : "enable";
 
-try {
+    try {
 
-    const form = new URLSearchParams();
+        const form = new URLSearchParams();
 
-    form.append("id", id);
-    form.append("action", action);
+        form.append("id", id);
+        form.append("action", action);
 
-    const response = await fetch(
-        "/clients/status",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-            body: form
-        }
-    );
-
-    if (!response.ok) {
-
-        const message = await response.text();
-
-        alert(
-            message ||
-            "Failed to change client status"
+        const response = await fetch(
+            "/clients/status",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
         );
 
-        return;
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to change client status"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to change client status");
+
     }
-
-    window.location.reload();
-
-} catch (error) {
-
-    alert("Failed to change client status");
-
-}
 
 }
 
 
 async function setClientStatus(id, action) {
 
-await toggleClientStatus(
-    id,
-    action === "disable"
-);
+    await toggleClientStatus(
+        id,
+        action === "disable"
+    );
 
 }
 
 
 async function editQuota(id, currentBytes) {
 
-const currentGB =
-    currentBytes > 0
-        ? (currentBytes / 1000000000)
-        : 0;
+    const currentGB =
+        currentBytes > 0
+            ? (currentBytes / 1000000000)
+            : 0;
 
-const value = prompt(
-    "Enter traffic quota in GB.\n\n" +
-    "Use 0 for unlimited.",
-    currentGB
-);
-
-if (value === null) {
-    return;
-}
-
-const quota = parseFloat(value);
-
-if (isNaN(quota) || quota < 0) {
-
-    alert("Invalid quota.");
-
-    return;
-}
-
-try {
-
-    const form = new URLSearchParams();
-
-    form.append("id", id);
-    form.append("quota", quota);
-
-    const response = await fetch(
-        "/clients/quota",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-            body: form
-        }
+    const value = prompt(
+        "Enter traffic quota in GB.\n\n" +
+        "Use 0 for unlimited.",
+        currentGB
     );
 
-    if (!response.ok) {
+    if (value === null) {
+        return;
+    }
 
-        const message = await response.text();
+    const quota = parseFloat(value);
 
-        alert(
-            message ||
-            "Failed to update quota"
-        );
+    if (isNaN(quota) || quota < 0) {
+
+        alert("Invalid quota.");
 
         return;
     }
 
-    window.location.reload();
+    try {
 
-} catch (error) {
+        const form = new URLSearchParams();
 
-    alert("Failed to update quota");
+        form.append("id", id);
+        form.append("quota", quota);
 
-}
+        const response = await fetch(
+            "/clients/quota",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to update quota"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to update quota");
+
+    }
 
 }
 
 
 async function resetTraffic(id) {
 
-if (
-    !confirm(
-        "Reset all traffic usage for this client?"
-    )
-) {
-
-    return;
-
-}
-
-try {
-
-    const form = new URLSearchParams();
-
-    form.append("id", id);
-
-    const response = await fetch(
-        "/clients/reset",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-            body: form
-        }
-    );
-
-    if (!response.ok) {
-
-        const message = await response.text();
-
-        alert(
-            message ||
-            "Failed to reset traffic"
-        );
+    if (
+        !confirm(
+            "Reset all traffic usage for this client?"
+        )
+    ) {
 
         return;
+
     }
 
-    window.location.reload();
+    try {
 
-} catch (error) {
+        const form = new URLSearchParams();
 
-    alert("Failed to reset traffic");
+        form.append("id", id);
 
-}
+        const response = await fetch(
+            "/clients/reset",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+                body: form
+            }
+        );
+
+        if (!response.ok) {
+
+            const message = await response.text();
+
+            alert(
+                message ||
+                "Failed to reset traffic"
+            );
+
+            return;
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+
+        alert("Failed to reset traffic");
+
+    }
 
 }
 
 
 async function updateClientStatus() {
 
-try {
+    try {
 
-    const response = await fetch(
-        "/api/clients/status",
-        {
-            cache: "no-store"
-        }
-    );
+        const response = await fetch(
+            "/api/clients/status",
+            {
+                cache: "no-store"
+            }
+        );
 
-    if (!response.ok) {
-        return;
-    }
-
-    const clients = await response.json();
-
-    for (const client of clients) {
-
-        const element =
-            document.querySelector(
-                '[data-client-id="' +
-                client.id +
-                '"]'
-            );
-
-        if (!element) {
-            continue;
+        if (!response.ok) {
+            return;
         }
 
-        const used =
-            element.querySelector(
-                ".traffic-used"
-            );
+        const clients = await response.json();
 
-        const limit =
-            element.querySelector(
-                ".traffic-limit"
-            );
+        for (const client of clients) {
 
-        const progress =
-            element.querySelector(
-                ".progress-bar"
-            );
-
-        const statusDot =
-            element.querySelector(
-                ".status-dot"
-            );
-
-        const onlineLabel =
-            element.querySelector(
-                ".online-label"
-            );
-
-        const quotaStatus =
-            element.querySelector(
-                ".quota-status"
-            );
-
-        const statusToggle =
-            element.querySelector(
-                ".status-toggle"
-            );
-
-        if (used) {
-
-            used.textContent =
-                formatBytes(
-                    client.traffic_used
+            const element =
+                document.querySelector(
+                    '[data-client-id="' +
+                    client.id +
+                    '"]'
                 );
 
-        }
-
-        if (statusDot) {
-
-            if (client.online) {
-
-                statusDot.classList.add(
-                    "online"
-                );
-
-                statusDot.title =
-                    "Online";
-
-            } else {
-
-                statusDot.classList.remove(
-                    "online"
-                );
-
-                statusDot.title =
-                    "Offline";
-
+            if (!element) {
+                continue;
             }
 
-        }
-
-        if (onlineLabel) {
-
-            if (client.online) {
-
-                onlineLabel.textContent = "Online";
-
-                onlineLabel.classList.remove(
-                    "offline"
+            const used =
+                element.querySelector(
+                    ".traffic-used"
                 );
 
-            } else {
-
-                onlineLabel.textContent = "Offline";
-
-                onlineLabel.classList.add(
-                    "offline"
+            const limit =
+                element.querySelector(
+                    ".traffic-limit"
                 );
 
-            }
-
-        }
-
-        if (statusToggle) {
-
-            if (client.enabled) {
-
-                statusToggle.classList.add(
-                    "enabled"
+            const progress =
+                element.querySelector(
+                    ".progress-bar"
                 );
 
-                statusToggle.classList.remove(
-                    "disabled"
+            const statusDot =
+                element.querySelector(
+                    ".status-dot"
                 );
 
-                statusToggle.title =
-                    "Disable";
-
-                statusToggle.setAttribute(
-                    "aria-label",
-                    "Disable client"
+            const onlineLabel =
+                element.querySelector(
+                    ".online-label"
                 );
 
-                statusToggle.onclick =
-                    function() {
-
-                        toggleClientStatus(
-                            client.id,
-                            true
-                        );
-
-                    };
-
-            } else {
-
-                statusToggle.classList.remove(
-                    "enabled"
+            const quotaStatus =
+                element.querySelector(
+                    ".quota-status"
                 );
 
-                statusToggle.classList.add(
-                    "disabled"
+            const statusToggle =
+                element.querySelector(
+                    ".status-toggle"
                 );
 
-                statusToggle.title =
-                    "Enable";
+            if (used) {
 
-                statusToggle.setAttribute(
-                    "aria-label",
-                    "Enable client"
-                );
-
-                statusToggle.onclick =
-                    function() {
-
-                        toggleClientStatus(
-                            client.id,
-                            false
-                        );
-
-                    };
-
-            }
-
-        }
-
-        if (client.traffic_limit > 0) {
-
-            if (limit) {
-
-                limit.textContent =
-                    "/ " +
+                used.textContent =
                     formatBytes(
-                        client.traffic_limit
+                        client.traffic_used
                     );
 
             }
 
-            if (progress) {
+            if (statusDot) {
 
-                let percent =
-                    client.traffic_used *
-                    100 /
-                    client.traffic_limit;
+                if (client.online) {
 
-                if (percent > 100) {
-                    percent = 100;
+                    statusDot.classList.add(
+                        "online"
+                    );
+
+                    statusDot.title =
+                        "Online";
+
+                } else {
+
+                    statusDot.classList.remove(
+                        "online"
+                    );
+
+                    statusDot.title =
+                        "Offline";
+
                 }
 
-                if (percent < 0) {
-                    percent = 0;
-                }
+            }
 
-                progress.style.width =
-                    percent + "%";
+            if (onlineLabel) {
 
-                if (
-                    client.traffic_used >=
-                    client.traffic_limit
-                ) {
+                if (client.online) {
 
-                    progress.classList.add(
-                        "full"
+                    onlineLabel.textContent = "Online";
+
+                    onlineLabel.classList.remove(
+                        "offline"
                     );
 
                 } else {
+
+                    onlineLabel.textContent = "Offline";
+
+                    onlineLabel.classList.add(
+                        "offline"
+                    );
+
+                }
+
+            }
+
+            if (statusToggle) {
+
+                if (client.enabled) {
+
+                    statusToggle.classList.add(
+                        "enabled"
+                    );
+
+                    statusToggle.classList.remove(
+                        "disabled"
+                    );
+
+                    statusToggle.title =
+                        "Disable";
+
+                    statusToggle.setAttribute(
+                        "aria-label",
+                        "Disable client"
+                    );
+
+                    statusToggle.onclick =
+                        function() {
+
+                            toggleClientStatus(
+                                client.id,
+                                true
+                            );
+
+                        };
+
+                } else {
+
+                    statusToggle.classList.remove(
+                        "enabled"
+                    );
+
+                    statusToggle.classList.add(
+                        "disabled"
+                    );
+
+                    statusToggle.title =
+                        "Enable";
+
+                    statusToggle.setAttribute(
+                        "aria-label",
+                        "Enable client"
+                    );
+
+                    statusToggle.onclick =
+                        function() {
+
+                            toggleClientStatus(
+                                client.id,
+                                false
+                            );
+
+                        };
+
+                }
+
+            }
+
+            if (client.traffic_limit > 0) {
+
+                if (limit) {
+
+                    limit.textContent =
+                        "/ " +
+                        formatBytes(
+                            client.traffic_limit
+                        );
+
+                }
+
+                if (progress) {
+
+                    let percent =
+                        client.traffic_used *
+                        100 /
+                        client.traffic_limit;
+
+                    if (percent > 100) {
+                        percent = 100;
+                    }
+
+                    if (percent < 0) {
+                        percent = 0;
+                    }
+
+                    progress.style.width =
+                        percent + "%";
+
+                    if (
+                        client.traffic_used >=
+                        client.traffic_limit
+                    ) {
+
+                        progress.classList.add(
+                            "full"
+                        );
+
+                    } else {
+
+                        progress.classList.remove(
+                            "full"
+                        );
+
+                    }
+
+                }
+
+            } else {
+
+                if (limit) {
+
+                    limit.textContent =
+                        "Unlimited";
+
+                }
+
+                if (progress) {
+
+                    progress.style.width =
+                        "0%";
 
                     progress.classList.remove(
                         "full"
@@ -1556,88 +1654,66 @@ try {
 
             }
 
-        } else {
+            if (quotaStatus) {
 
-            if (limit) {
+                if (!client.enabled) {
 
-                limit.textContent =
-                    "Unlimited";
+                    quotaStatus.classList.add(
+                        "show"
+                    );
 
-            }
+                } else {
 
-            if (progress) {
+                    quotaStatus.classList.remove(
+                        "show"
+                    );
 
-                progress.style.width =
-                    "0%";
-
-                progress.classList.remove(
-                    "full"
-                );
+                }
 
             }
 
         }
 
-        if (quotaStatus) {
+    } catch (error) {
 
-            if (!client.enabled) {
-
-                quotaStatus.classList.add(
-                    "show"
-                );
-
-            } else {
-
-                quotaStatus.classList.remove(
-                    "show"
-                );
-
-            }
-
-        }
+        console.log(
+            "Status update failed:",
+            error
+        );
 
     }
-
-} catch (error) {
-
-    console.log(
-        "Status update failed:",
-        error
-    );
-
-}
 
 }
 
 
 function formatBytes(bytes) {
 
-if (bytes < 1000) {
-    return bytes + " B";
-}
+    if (bytes < 1000) {
+        return bytes + " B";
+    }
 
-if (bytes < 1000000) {
+    if (bytes < 1000000) {
+
+        return (
+            (bytes / 1000).toFixed(1) +
+            " KB"
+        );
+
+    }
+
+    if (bytes < 1000000000) {
+
+        return (
+            (bytes / 1000000).toFixed(1) +
+            " MB"
+        );
+
+    }
 
     return (
-        (bytes / 1000).toFixed(1) +
-        " KB"
+        (bytes / 1000000000).toFixed(2) +
+        " GB"
     );
-
-}
-
-if (bytes < 1000000000) {
-
-    return (
-        (bytes / 1000000).toFixed(1) +
-        " MB"
-    );
-
-}
-
-return (
-    (bytes / 1000000000).toFixed(2) +
-    " GB"
-);
 
 }
 
@@ -1661,5 +1737,7 @@ document.addEventListener(
     }
 );
 
-</script></body>
+    </script>
+
+</body>
 </html>
