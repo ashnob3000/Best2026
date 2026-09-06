@@ -15,7 +15,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background: #17191c;
-            color: #f1f3f5;
+            color: #00e676;
         }
 
         .container {
@@ -33,7 +33,7 @@
 
         .header h1 {
             margin: 0;
-            color: #ffffff;
+            color: #00e676;
             letter-spacing: .3px;
         }
 
@@ -48,7 +48,7 @@
 
         .card h2 {
             margin-top: 0;
-            color: #f5f5f5;
+            color: #00e676;
         }
 
         .form-row {
@@ -69,7 +69,7 @@
         select {
             border: 1px solid #3a4047;
             background: #2b3036;
-            color: #f1f3f5;
+            color: #00e676;
             outline: none;
         }
 
@@ -95,8 +95,8 @@
         button {
             cursor: pointer;
             background: #343a40;
-            color: #ffffff;
-            border: 1px solid transparent;
+            color: #00e676;
+            border: 1px solid #454c54;
             transition: opacity .15s ease, transform .1s ease;
         }
 
@@ -106,30 +106,6 @@
 
         button:active {
             transform: translateY(1px);
-        }
-
-        button.delete {
-            background: #dc2626;
-        }
-
-        button.reset {
-            background: #4b5563;
-        }
-
-        button.edit {
-            background: #2563eb;
-        }
-
-        button.success {
-            background: #16a34a;
-        }
-
-        button.warning {
-            background: #d97706;
-        }
-
-        button.qr {
-            background: #7c3aed;
         }
 
         .client {
@@ -171,12 +147,27 @@
         .status-dot.online {
             background: #22c55e;
             box-shadow: 0 0 8px rgba(34,197,94,.65);
+            animation: onlinePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes onlinePulse {
+            0%, 100% {
+                opacity: .35;
+                transform: scale(.9);
+                box-shadow: 0 0 3px rgba(34,197,94,.25);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.15);
+                box-shadow: 0 0 10px rgba(34,197,94,.8);
+            }
         }
 
         .client-name {
             font-weight: bold;
             font-size: 17px;
-            color: #ffffff;
+            color: #00e676;
         }
 
         .protocol {
@@ -199,7 +190,7 @@
 
         .traffic-used {
             font-weight: bold;
-            color: #e5e7eb;
+            color: #00e676;
         }
 
         .traffic-limit {
@@ -247,8 +238,11 @@
             display: block;
         }
 
+        /* TOP ACTIONS */
+
         .actions {
             display: flex;
+            align-items: center;
             gap: 8px;
             flex-wrap: wrap;
             justify-content: flex-end;
@@ -257,6 +251,103 @@
 
         .actions button {
             white-space: nowrap;
+        }
+
+        /* ENABLE / DISABLE TOGGLE */
+
+        .status-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            width: 58px;
+            height: 30px;
+            padding: 0;
+            border: 1px solid #3f464d;
+            border-radius: 999px;
+            background: #30353b;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+
+        .status-toggle .toggle-knob {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6b7280;
+            transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+        }
+
+        .status-toggle.enabled {
+            background: rgba(34,197,94,.22);
+            border-color: #22c55e;
+        }
+
+        .status-toggle.enabled .toggle-knob {
+            transform: translateX(28px);
+            background: #22c55e;
+            box-shadow: 0 0 9px rgba(34,197,94,.65);
+        }
+
+        .status-toggle.disabled {
+            background: #292d32;
+            border-color: #3f464d;
+        }
+
+        .status-toggle.disabled .toggle-knob {
+            transform: translateX(0);
+            background: #555c64;
+            box-shadow: none;
+        }
+
+        .status-toggle:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        /* MORE */
+
+        .more-wrapper {
+            position: relative;
+        }
+
+        .more-button {
+            min-width: 74px;
+            background: #343a40;
+            color: #00e676;
+        }
+
+        .more-menu {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #1d2125;
+            border: 1px solid #343a40;
+            border-radius: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .more-menu.show {
+            display: flex;
+        }
+
+        .more-menu button {
+            background: #292e33;
+            color: #00e676;
+            border: 1px solid #3a4047;
+        }
+
+        .more-menu .danger {
+            color: #f87171;
+            border-color: #713b3b;
+        }
+
+        .more-menu form {
+            margin: 0;
         }
 
         .empty {
@@ -303,7 +394,7 @@
         .modal-content h3 {
             margin-top: 0;
             margin-bottom: 20px;
-            color: #ffffff;
+            color: #00e676;
         }
 
         #qrcode {
@@ -367,10 +458,15 @@
             .actions {
                 justify-content: flex-start;
                 max-width: none;
+                width: 100%;
             }
 
-            .actions button {
-                flex: 0 0 auto;
+            .more-wrapper {
+                width: 100%;
+            }
+
+            .more-menu {
+                justify-content: flex-start;
             }
 
         }
@@ -461,6 +557,13 @@
                                 {{.Name}}
                             </div>
 
+                            <span
+                                class="online-label"
+                                style="color:#8f969e;font-size:12px;"
+                            >
+                                {{if .Online}}Online{{else}}Offline{{end}}
+                            </span>
+
                         </div>
 
                         <div class="protocol">
@@ -523,7 +626,7 @@
                             <div
                                 class="quota-status disabled {{if not .Enabled}}show{{end}}"
                             >
-                                Disabled — traffic quota reached
+                                Disabled
                             </div>
 
                         </div>
@@ -544,103 +647,106 @@
 
                         <button
                             type="button"
-                            class="qr"
                             onclick="showQR({{.ID}})"
                         >
                             📱 QR
                         </button>
 
-                        <button
-                            type="button"
-                            class="edit"
-                            onclick="editName({{.ID}}, {{printf "%q" .Name}})"
-                        >
-                            ✏️ Rename
-                        </button>
-
-                        {{if eq .Protocol "vless"}}
+                        <!-- ENABLE / DISABLE -->
 
                         <button
                             type="button"
-                            class="warning"
-                            onclick="changeUUID({{.ID}})"
+                            class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"
+                            onclick="toggleClientStatus({{.ID}}, {{if .Enabled}}true{{else}}false{{end}})"
+                            aria-label="{{if .Enabled}}Disable client{{else}}Enable client{{end}}"
+                            title="{{if .Enabled}}Disable{{else}}Enable{{end}}"
                         >
-                            🔑 New UUID
+                            <span class="toggle-knob"></span>
                         </button>
 
-                        {{else}}
+                        <!-- MORE -->
 
                         <button
                             type="button"
-                            class="warning"
-                            onclick="changePassword({{.ID}})"
+                            class="more-button"
+                            onclick="toggleMore({{.ID}})"
                         >
-                            🔐 New Password
+                            More ⋮
                         </button>
-
-                        {{end}}
-
-                        <button
-                            type="button"
-                            class="edit"
-                            onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
-                        >
-                            📊 Quota
-                        </button>
-
-                        <button
-                            type="button"
-                            class="reset"
-                            onclick="resetTraffic({{.ID}})"
-                        >
-                            🔄 Reset
-                        </button>
-
-                        {{if .Enabled}}
-
-                        <button
-                            type="button"
-                            class="warning"
-                            onclick="setClientStatus({{.ID}}, 'disable')"
-                        >
-                            🔴 Disable
-                        </button>
-
-                        {{else}}
-
-                        <button
-                            type="button"
-                            class="success"
-                            onclick="setClientStatus({{.ID}}, 'enable')"
-                        >
-                            🟢 Enable
-                        </button>
-
-                        {{end}}
-
-                        <form
-                            method="POST"
-                            action="/clients/delete"
-                            style="margin: 0;"
-                            onsubmit="return confirm('Delete this client?');"
-                        >
-
-                            <input
-                                type="hidden"
-                                name="id"
-                                value="{{.ID}}"
-                            >
-
-                            <button
-                                class="delete"
-                                type="submit"
-                            >
-                                🗑 Delete
-                            </button>
-
-                        </form>
 
                     </div>
+
+                </div>
+
+
+                <!-- MORE MENU -->
+
+                <div
+                    class="more-menu"
+                    id="more-{{.ID}}"
+                >
+
+                    <button
+                        type="button"
+                        onclick="editName({{.ID}}, {{printf "%q" .Name}})"
+                    >
+                        Rename
+                    </button>
+
+                    {{if eq .Protocol "vless"}}
+
+                    <button
+                        type="button"
+                        onclick="changeUUID({{.ID}})"
+                    >
+                        New UUID
+                    </button>
+
+                    {{else}}
+
+                    <button
+                        type="button"
+                        onclick="changePassword({{.ID}})"
+                    >
+                        New Password
+                    </button>
+
+                    {{end}}
+
+                    <button
+                        type="button"
+                        onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
+                    >
+                        Quota
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="resetTraffic({{.ID}})"
+                    >
+                        Reset Traffic
+                    </button>
+
+                    <form
+                        method="POST"
+                        action="/clients/delete"
+                        onsubmit="return confirm('Delete this client?');"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="id"
+                            value="{{.ID}}"
+                        >
+
+                        <button
+                            class="danger"
+                            type="submit"
+                        >
+                            Delete
+                        </button>
+
+                    </form>
 
                 </div>
 
@@ -850,6 +956,21 @@ async function copyQRConfig() {
 }
 
 
+function toggleMore(id) {
+
+    const menu =
+        document.getElementById(
+            "more-" + id
+        );
+
+    if (!menu) {
+        return;
+    }
+
+    menu.classList.toggle("show");
+}
+
+
 async function editName(id, currentName) {
 
     const value = prompt(
@@ -1013,26 +1134,12 @@ async function changePassword(id) {
 }
 
 
-async function setClientStatus(id, action) {
+async function toggleClientStatus(id, currentlyEnabled) {
 
-    let message;
-
-    if (action === "disable") {
-
-        message =
-            "Disable this client?\n\n" +
-            "The client will immediately stop working.";
-
-    } else {
-
-        message =
-            "Enable this client?";
-
-    }
-
-    if (!confirm(message)) {
-        return;
-    }
+    const action =
+        currentlyEnabled
+            ? "disable"
+            : "enable";
 
     try {
 
@@ -1072,6 +1179,16 @@ async function setClientStatus(id, action) {
         alert("Failed to change client status");
 
     }
+}
+
+
+async function setClientStatus(id, action) {
+
+    await toggleClientStatus(
+        id,
+        action === "disable"
+    );
+
 }
 
 
@@ -1242,9 +1359,19 @@ async function updateClientStatus() {
                     ".status-dot"
                 );
 
+            const onlineLabel =
+                element.querySelector(
+                    ".online-label"
+                );
+
             const quotaStatus =
                 element.querySelector(
                     ".quota-status"
+                );
+
+            const statusToggle =
+                element.querySelector(
+                    ".status-toggle"
                 );
 
             if (used) {
@@ -1274,6 +1401,70 @@ async function updateClientStatus() {
 
                     statusDot.title =
                         "Offline";
+                }
+            }
+
+            if (onlineLabel) {
+
+                onlineLabel.textContent =
+                    client.online
+                        ? "Online"
+                        : "Offline";
+            }
+
+            if (statusToggle) {
+
+                if (client.enabled) {
+
+                    statusToggle.classList.add(
+                        "enabled"
+                    );
+
+                    statusToggle.classList.remove(
+                        "disabled"
+                    );
+
+                    statusToggle.title =
+                        "Disable";
+
+                    statusToggle.setAttribute(
+                        "aria-label",
+                        "Disable client"
+                    );
+
+                    statusToggle.onclick =
+                        function() {
+                            toggleClientStatus(
+                                client.id,
+                                true
+                            );
+                        };
+
+                } else {
+
+                    statusToggle.classList.remove(
+                        "enabled"
+                    );
+
+                    statusToggle.classList.add(
+                        "disabled"
+                    );
+
+                    statusToggle.title =
+                        "Enable";
+
+                    statusToggle.setAttribute(
+                        "aria-label",
+                        "Enable client"
+                    );
+
+                    statusToggle.onclick =
+                        function() {
+                            toggleClientStatus(
+                                client.id,
+                                false
+                            );
+                        };
                 }
             }
 
