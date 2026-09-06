@@ -1,656 +1,612 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Best2026 Panel</title>
 
-    <title>Best2026 Panel</title>
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: #ffffff;
+    }
+
+    .container {
+        max-width: 1050px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .header h1 {
+        margin: 0;
+        color: #81C784;
+        letter-spacing: .3px;
+    }
+
+    .card {
+        background: #2a2a2a;
+        border: 1px solid #383838;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.25);
+    }
+
+    .card h2 {
+        margin-top: 0;
+        color: #81C784;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    input,
+    select,
+    button {
+        font-size: 15px;
+        padding: 11px 14px;
+        border-radius: 8px;
+    }
+
+    input,
+    select {
+        border: 1px solid #454545;
+        background: #333333;
+        color: #ffffff;
+        outline: none;
+    }
+
+    input::placeholder {
+        color: #999999;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #4CAF50;
+        box-shadow: 0 0 0 2px rgba(76,175,80,.15);
+    }
+
+    input {
+        flex: 1;
+        min-width: 180px;
+    }
+
+    select {
+        min-width: 180px;
+    }
+
+    button {
+        cursor: pointer;
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #4a4a4a;
+        transition:
+            background .15s ease,
+            border-color .15s ease,
+            color .15s ease,
+            transform .1s ease;
+    }
+
+    button:hover {
+        background: #66BB6A;
+        border-color: #66BB6A;
+        color: #121212;
+    }
+
+    button:active {
+        transform: translateY(1px);
+    }
+
+    /* CREATE CLIENT */
+
+    .create-client-button {
+        background: #4CAF50;
+        color: #121212;
+        border-color: #4CAF50;
+        font-weight: bold;
+    }
+
+    .create-client-button:hover {
+        background: #66BB6A;
+        border-color: #66BB6A;
+        color: #121212;
+    }
+
+    .client {
+        padding: 20px 0;
+        border-bottom: 1px solid #3a3a3a;
+    }
+
+    .client:last-child {
+        border-bottom: none;
+    }
+
+    .client-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .client-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .client-name-row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
+        border-radius: 50%;
+        background: #666666;
+        box-shadow: 0 0 0 2px rgba(255,255,255,.05);
+    }
+
+    .status-dot.online {
+        background: #4CAF50;
+        box-shadow: 0 0 8px rgba(76,175,80,.65);
+        animation: onlinePulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes onlinePulse {
+        0%, 100% {
+            opacity: .35;
+            transform: scale(.9);
+            box-shadow: 0 0 3px rgba(76,175,80,.25);
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #17191c;
-            color: #00e676;
+        50% {
+            opacity: 1;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(76,175,80,.8);
         }
+    }
+
+    .client-name {
+        font-weight: bold;
+        font-size: 17px;
+        color: #ffffff;
+    }
+
+    .online-label {
+        color: #81C784 !important;
+        font-size: 12px;
+    }
+
+    .protocol {
+        margin-top: 5px;
+        color: #ffffff;
+        font-size: 14px;
+    }
+
+    /* TRAFFIC */
+
+    .traffic {
+        margin-top: 14px;
+    }
+
+    .traffic-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 7px;
+        font-size: 14px;
+    }
+
+    .traffic-used {
+        font-weight: bold;
+        color: #81C784;
+    }
+
+    .traffic-limit {
+        color: #b0b0b0;
+    }
+
+    .progress {
+        width: 100%;
+        height: 9px;
+        background: #3a3a3a;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #4CAF50;
+        border-radius: 999px;
+        transition: width .3s ease;
+    }
+
+    .progress-bar.full {
+        background: #ef5350;
+    }
+
+    .unlimited {
+        color: #999999;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .disabled {
+        color: #ef5350;
+        font-weight: bold;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .quota-status {
+        display: none;
+    }
+
+    .quota-status.show {
+        display: block;
+    }
+
+    /* TOP ACTIONS */
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        max-width: 430px;
+    }
+
+    .actions button {
+        white-space: nowrap;
+    }
+
+    /* ENABLE / DISABLE TOGGLE */
+
+    .status-toggle {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        width: 50px;
+        height: 26px;
+        padding: 0;
+        border: 1px solid #555555;
+        border-radius: 999px;
+        background: #353535;
+        cursor: pointer;
+        transition:
+            background .2s ease,
+            border-color .2s ease;
+    }
+
+    .status-toggle .toggle-knob {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #777777;
+        transition:
+            transform .2s ease,
+            background .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .status-toggle.enabled {
+        background: rgba(76,175,80,.22);
+        border-color: #4CAF50;
+    }
+
+    .status-toggle.enabled .toggle-knob {
+        transform: translateX(24px);
+        background: #4CAF50;
+        box-shadow: 0 0 9px rgba(76,175,80,.65);
+    }
+
+    .status-toggle.disabled {
+        background: #292929;
+        border-color: #4a4a4a;
+    }
+
+    .status-toggle.disabled .toggle-knob {
+        transform: translateX(0);
+        background: #666666;
+        box-shadow: none;
+    }
+
+    .status-toggle:hover {
+        background: rgba(76,175,80,.18);
+        border-color: #66BB6A;
+    }
+
+    .status-toggle.disabled:hover {
+        background: #353535;
+    }
+
+    .status-toggle:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+    }
+
+    /* MORE */
+
+    .more-wrapper {
+        position: relative;
+    }
+
+    .more-button {
+        min-width: 74px;
+        background: #333333;
+        color: #ffffff;
+    }
+
+    .more-menu {
+        display: none;
+        margin-top: 12px;
+        padding: 12px;
+        background: #242424;
+        border: 1px solid #3a3a3a;
+        border-radius: 10px;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .more-menu.show {
+        display: flex;
+    }
+
+    .more-menu button {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #454545;
+    }
+
+    .more-menu button:hover {
+        background: #66BB6A;
+        color: #121212;
+        border-color: #66BB6A;
+    }
+
+    .more-menu .danger {
+        color: #ef5350;
+        border-color: #713b3b;
+    }
+
+    .more-menu .danger:hover {
+        background: #ef5350;
+        color: #121212;
+        border-color: #ef5350;
+    }
+
+    .more-menu form {
+        margin: 0;
+    }
+
+    .empty {
+        color: #999999;
+        text-align: center;
+        padding: 30px 0;
+    }
+
+    .hint {
+        color: #999999;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    /* QR MODAL */
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        inset: 0;
+        background: rgba(0,0,0,.72);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(3px);
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: #2a2a2a;
+        border: 1px solid #404040;
+        border-radius: 14px;
+        padding: 25px;
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+        box-shadow: 0 15px 50px rgba(0,0,0,.45);
+    }
+
+    .modal-content h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #81C784;
+    }
+
+    #qrcode {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 15px auto 20px;
+        min-height: 256px;
+        background: #ffffff;
+        border-radius: 8px;
+        width: 256px;
+        padding: 4px;
+    }
+
+    #qrcode img,
+    #qrcode canvas {
+        max-width: 256px;
+        max-height: 256px;
+    }
+
+    .qr-config {
+        width: 100%;
+        min-height: 90px;
+        resize: vertical;
+        padding: 10px;
+        background: #181818;
+        color: #d1d5db;
+        border: 1px solid #3f3f3f;
+        border-radius: 8px;
+        font-size: 12px;
+        margin-bottom: 12px;
+        outline: none;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .close-modal {
+        background: #444444;
+        color: #ffffff;
+    }
+
+    @media (max-width: 700px) {
 
         .container {
-            max-width: 1050px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            margin: 0;
-            color: #00e676;
-            letter-spacing: .3px;
+            margin: 20px auto;
+            padding: 14px;
         }
 
         .card {
-            background: #22262b;
-            border: 1px solid #30353b;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,.18);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            color: #00e676;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        input,
-        select,
-        button {
-            font-size: 15px;
-            padding: 11px 14px;
-            border-radius: 8px;
-        }
-
-        input,
-        select {
-            border: 1px solid #3a4047;
-            background: #2b3036;
-            color: #00e676;
-            outline: none;
-        }
-
-        input::placeholder {
-            color: #8d949c;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #22c55e;
-            box-shadow: 0 0 0 2px rgba(34,197,94,.12);
-        }
-
-        input {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        select {
-            min-width: 180px;
-        }
-
-        button {
-            cursor: pointer;
-            background: #343a40;
-            color: #00e676;
-            border: 1px solid #454c54;
-            transition: opacity .15s ease, transform .1s ease;
-        }
-
-        button:hover {
-            opacity: .88;
-        }
-
-        button:active {
-            transform: translateY(1px);
-        }
-
-        .client {
-            padding: 20px 0;
-            border-bottom: 1px solid #343a40;
-        }
-
-        .client:last-child {
-            border-bottom: none;
+            padding: 16px;
         }
 
         .client-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 20px;
+            flex-direction: column;
         }
-
-        .client-info {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .client-name-row {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            min-width: 10px;
-            border-radius: 50%;
-            background: #6b7280;
-            box-shadow: 0 0 0 2px rgba(107,114,128,.12);
-        }
-
-        .status-dot.online {
-            background: #22c55e;
-            box-shadow: 0 0 8px rgba(34,197,94,.65);
-            animation: onlinePulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes onlinePulse {
-            0%, 100% {
-                opacity: .35;
-                transform: scale(.9);
-                box-shadow: 0 0 3px rgba(34,197,94,.25);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.15);
-                box-shadow: 0 0 10px rgba(34,197,94,.8);
-            }
-        }
-
-        .client-name {
-            font-weight: bold;
-            font-size: 17px;
-            color: #00e676;
-        }
-
-        .protocol {
-            margin-top: 5px;
-            color: #9ca3af;
-            font-size: 14px;
-        }
-
-        .traffic {
-            margin-top: 14px;
-        }
-
-        .traffic-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 7px;
-            font-size: 14px;
-        }
-
-        .traffic-used {
-            font-weight: bold;
-            color: #00e676;
-        }
-
-        .traffic-limit {
-            color: #9ca3af;
-        }
-
-        .progress {
-            width: 100%;
-            height: 9px;
-            background: #343a40;
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: #22c55e;
-            border-radius: 999px;
-            transition: width .3s ease;
-        }
-
-        .progress-bar.full {
-            background: #ef4444;
-        }
-
-        .unlimited {
-            color: #8f969e;
-            font-size: 13px;
-            margin-top: 7px;
-        }
-
-        .disabled {
-            color: #f87171;
-            font-weight: bold;
-            font-size: 13px;
-            margin-top: 7px;
-        }
-
-        .quota-status {
-            display: none;
-        }
-
-        .quota-status.show {
-            display: block;
-        }
-
-        /* TOP ACTIONS */
 
         .actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            max-width: 430px;
+            justify-content: flex-start;
+            max-width: none;
+            width: 100%;
         }
-
-        .actions button {
-            white-space: nowrap;
-        }
-
-        /* ENABLE / DISABLE TOGGLE */
-
-        .status-toggle {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            width: 58px;
-            height: 30px;
-            padding: 0;
-            border: 1px solid #3f464d;
-            border-radius: 999px;
-            background: #30353b;
-            cursor: pointer;
-            transition: background .2s ease, border-color .2s ease;
-        }
-
-        .status-toggle .toggle-knob {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #6b7280;
-            transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
-        }
-
-        .status-toggle.enabled {
-            background: rgba(34,197,94,.22);
-            border-color: #22c55e;
-        }
-
-        .status-toggle.enabled .toggle-knob {
-            transform: translateX(28px);
-            background: #22c55e;
-            box-shadow: 0 0 9px rgba(34,197,94,.65);
-        }
-
-        .status-toggle.disabled {
-            background: #292d32;
-            border-color: #3f464d;
-        }
-
-        .status-toggle.disabled .toggle-knob {
-            transform: translateX(0);
-            background: #555c64;
-            box-shadow: none;
-        }
-
-        .status-toggle:disabled {
-            opacity: .65;
-            cursor: not-allowed;
-        }
-
-        /* MORE */
 
         .more-wrapper {
-            position: relative;
-        }
-
-        .more-button {
-            min-width: 74px;
-            background: #343a40;
-            color: #00e676;
+            width: 100%;
         }
 
         .more-menu {
-            display: none;
-            margin-top: 12px;
-            padding: 12px;
-            background: #1d2125;
-            border: 1px solid #343a40;
-            border-radius: 10px;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
+            justify-content: flex-start;
         }
 
-        .more-menu.show {
-            display: flex;
-        }
+    }
+</style>
 
-        .more-menu button {
-            background: #292e33;
-            color: #00e676;
-            border: 1px solid #3a4047;
-        }
-
-        .more-menu .danger {
-            color: #f87171;
-            border-color: #713b3b;
-        }
-
-        .more-menu form {
-            margin: 0;
-        }
-
-        .empty {
-            color: #8f969e;
-            text-align: center;
-            padding: 30px 0;
-        }
-
-        .hint {
-            color: #8f969e;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        /* QR MODAL */
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            inset: 0;
-            background: rgba(0,0,0,.72);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            backdrop-filter: blur(3px);
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #22262b;
-            border: 1px solid #363c43;
-            border-radius: 14px;
-            padding: 25px;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 15px 50px rgba(0,0,0,.45);
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #00e676;
-        }
-
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 15px auto 20px;
-            min-height: 256px;
-            background: #ffffff;
-            border-radius: 8px;
-            width: 256px;
-            padding: 4px;
-        }
-
-        #qrcode img,
-        #qrcode canvas {
-            max-width: 256px;
-            max-height: 256px;
-        }
-
-        .qr-config {
-            width: 100%;
-            min-height: 90px;
-            resize: vertical;
-            padding: 10px;
-            background: #181b1f;
-            color: #d1d5db;
-            border: 1px solid #3a4047;
-            border-radius: 8px;
-            font-size: 12px;
-            margin-bottom: 12px;
-            outline: none;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .close-modal {
-            background: #4b5563;
-        }
-
-        @media (max-width: 700px) {
-
-            .container {
-                margin: 20px auto;
-                padding: 14px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .client-top {
-                flex-direction: column;
-            }
-
-            .actions {
-                justify-content: flex-start;
-                max-width: none;
-                width: 100%;
-            }
-
-            .more-wrapper {
-                width: 100%;
-            }
-
-            .more-menu {
-                justify-content: flex-start;
-            }
-
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="header">
-        <h1>TINY HOLE</h1>
-    </div>
+</head><body><div class="container"><div class="header">
+    <h1>TINY HOLE</h1>
+</div>
 
 
-    <!-- CREATE CLIENT -->
+<!-- CREATE CLIENT -->
 
-    <div class="card">
+<div class="card">
 
-        <h2>Create Client</h2>
+    <h2>Create Client</h2>
 
-        <form method="POST" action="/clients/create">
+    <form method="POST" action="/clients/create">
 
-            <div class="form-row">
+        <div class="form-row">
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Client name"
-                    required
-                >
-
-                <select name="protocol" required>
-                    <option value="vless">VLESS WS TLS</option>
-                    <option value="trojan">Trojan WS TLS</option>
-                </select>
-
-                <input
-                    type="number"
-                    name="quota"
-                    placeholder="Quota (GB)"
-                    min="0"
-                    step="0.1"
-                >
-
-                <button type="submit">
-                    Create Client
-                </button>
-
-            </div>
-
-            <div class="hint">
-                Leave quota empty or set it to 0 for unlimited traffic.
-            </div>
-
-        </form>
-
-    </div>
-
-
-    <!-- CLIENTS -->
-
-    <div class="card">
-
-        <h2>Clients</h2>
-
-        {{if .Clients}}
-
-            {{range .Clients}}
-
-            <div
-                class="client"
-                data-client-id="{{.ID}}"
+            <input
+                type="text"
+                name="name"
+                placeholder="Client name"
+                required
             >
 
-                <div class="client-top">
+            <select name="protocol" required>
+                <option value="vless">VLESS WS TLS</option>
+                <option value="trojan">Trojan WS TLS</option>
+            </select>
 
-                    <div class="client-info">
+            <input
+                type="number"
+                name="quota"
+                placeholder="Quota (GB)"
+                min="0"
+                step="0.1"
+            >
 
-                        <div class="client-name-row">
+            <button
+                type="submit"
+                class="create-client-button"
+            >
+                Create Client
+            </button>
 
-                            <span
-                                class="status-dot {{if .Online}}online{{end}}"
-                                title="{{if .Online}}Online{{else}}Offline{{end}}"
-                            ></span>
+        </div>
 
-                            <div class="client-name">
-                                {{.Name}}
-                            </div>
+        <div class="hint">
+            Leave quota empty or set it to 0 for unlimited traffic.
+        </div>
 
-                            <span
-                                class="online-label"
-                                style="color:#8f969e;font-size:12px;"
-                            >
-                                {{if .Online}}Online{{else}}Offline{{end}}
-                            </span>
+    </form>
 
+</div>
+
+
+<!-- CLIENTS -->
+
+<div class="card">
+
+    <h2>Clients</h2>
+
+    {{if .Clients}}
+
+        {{range .Clients}}
+
+        <div
+            class="client"
+            data-client-id="{{.ID}}"
+        >
+
+            <div class="client-top">
+
+                <div class="client-info">
+
+                    <div class="client-name-row">
+
+                        <span
+                            class="status-dot {{if .Online}}online{{end}}"
+                            title="{{if .Online}}Online{{else}}Offline{{end}}"
+                        ></span>
+
+                        <div class="client-name">
+                            {{.Name}}
                         </div>
-
-                        <div class="protocol">
-
-                            {{if eq .Protocol "vless"}}
-                                VLESS • WS • TLS
-                            {{else}}
-                                Trojan • WS • TLS
-                            {{end}}
-
-                        </div>
-
-                        <!-- TRAFFIC -->
-
-                        <div class="traffic">
-
-                            {{if gt .TrafficLimit 0}}
-
-                                <div class="traffic-header">
-
-                                    <span class="traffic-used">
-                                        {{formatBytes .TrafficUsed}}
-                                    </span>
-
-                                    <span class="traffic-limit">
-                                        / {{formatBytes .TrafficLimit}}
-                                    </span>
-
-                                </div>
-
-                                <div class="progress">
-
-                                    <div
-                                        class="progress-bar {{if ge .TrafficUsed .TrafficLimit}}full{{end}}"
-                                        style="width: {{percentage .TrafficUsed .TrafficLimit}}%;"
-                                    ></div>
-
-                                </div>
-
-                            {{else}}
-
-                                <div class="traffic-header">
-
-                                    <span class="traffic-used">
-                                        {{formatBytes .TrafficUsed}}
-                                    </span>
-
-                                    <span class="traffic-limit">
-                                        Unlimited
-                                    </span>
-
-                                </div>
-
-                                <div class="unlimited">
-                                    No traffic limit
-                                </div>
-
-                            {{end}}
-
-                            <div
-                                class="quota-status disabled {{if not .Enabled}}show{{end}}"
-                            >
-                                Disabled
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- ACTIONS -->
-
-                    <div class="actions">
-
-                        <button
-                            type="button"
-                            onclick="copyConfig({{.ID}})"
-                        >
-                            📋 Copy
-                        </button>
-
-                        <button
-                            type="button"
-                            onclick="showQR({{.ID}})"
-                        >
-                            📱 QR
-                        </button>
 
                         <!-- ENABLE / DISABLE -->
 
@@ -664,162 +620,241 @@
                             <span class="toggle-knob"></span>
                         </button>
 
-                        <!-- MORE -->
-
-                        <button
-                            type="button"
-                            class="more-button"
-                            onclick="toggleMore({{.ID}})"
+                        <span
+                            class="online-label"
                         >
-                            More ⋮
-                        </button>
+                            {{if .Online}}Online{{else}}Offline{{end}}
+                        </span>
+
+                    </div>
+
+                    <div class="protocol">
+
+                        {{if eq .Protocol "vless"}}
+                            VLESS • WS • TLS
+                        {{else}}
+                            Trojan • WS • TLS
+                        {{end}}
+
+                    </div>
+
+                    <!-- TRAFFIC -->
+
+                    <div class="traffic">
+
+                        {{if gt .TrafficLimit 0}}
+
+                            <div class="traffic-header">
+
+                                <span class="traffic-used">
+                                    {{formatBytes .TrafficUsed}}
+                                </span>
+
+                                <span class="traffic-limit">
+                                    / {{formatBytes .TrafficLimit}}
+                                </span>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div
+                                    class="progress-bar {{if ge .TrafficUsed .TrafficLimit}}full{{end}}"
+                                    style="width: {{percentage .TrafficUsed .TrafficLimit}}%;"
+                                ></div>
+
+                            </div>
+
+                        {{else}}
+
+                            <div class="traffic-header">
+
+                                <span class="traffic-used">
+                                    {{formatBytes .TrafficUsed}}
+                                </span>
+
+                                <span class="traffic-limit">
+                                    Unlimited
+                                </span>
+
+                            </div>
+
+                            <div class="unlimited">
+                                No traffic limit
+                            </div>
+
+                        {{end}}
+
+                        <div
+                            class="quota-status disabled {{if not .Enabled}}show{{end}}"
+                        >
+                            Disabled
+                        </div>
 
                     </div>
 
                 </div>
 
 
-                <!-- MORE MENU -->
+                <!-- ACTIONS -->
 
-                <div
-                    class="more-menu"
-                    id="more-{{.ID}}"
-                >
+                <div class="actions">
 
                     <button
                         type="button"
-                        onclick="editName({{.ID}}, {{printf "%q" .Name}})"
+                        onclick="copyConfig({{.ID}})"
                     >
-                        Rename
-                    </button>
-
-                    {{if eq .Protocol "vless"}}
-
-                    <button
-                        type="button"
-                        onclick="changeUUID({{.ID}})"
-                    >
-                        New UUID
-                    </button>
-
-                    {{else}}
-
-                    <button
-                        type="button"
-                        onclick="changePassword({{.ID}})"
-                    >
-                        New Password
-                    </button>
-
-                    {{end}}
-
-                    <button
-                        type="button"
-                        onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
-                    >
-                        Quota
+                        📋 Copy
                     </button>
 
                     <button
                         type="button"
-                        onclick="resetTraffic({{.ID}})"
+                        onclick="showQR({{.ID}})"
                     >
-                        Reset Traffic
+                        📱 QR
                     </button>
 
-                    <form
-                        method="POST"
-                        action="/clients/delete"
-                        onsubmit="return confirm('Delete this client?');"
+                    <!-- MORE -->
+
+                    <button
+                        type="button"
+                        class="more-button"
+                        onclick="toggleMore({{.ID}})"
                     >
-
-                        <input
-                            type="hidden"
-                            name="id"
-                            value="{{.ID}}"
-                        >
-
-                        <button
-                            class="danger"
-                            type="submit"
-                        >
-                            Delete
-                        </button>
-
-                    </form>
+                        More ⋮
+                    </button>
 
                 </div>
 
             </div>
 
-            {{end}}
 
-        {{else}}
+            <!-- MORE MENU -->
 
-            <div class="empty">
-                No clients yet.
+            <div
+                class="more-menu"
+                id="more-{{.ID}}"
+            >
+
+                <button
+                    type="button"
+                    onclick="editName({{.ID}}, {{printf "%q" .Name}})"
+                >
+                    Rename
+                </button>
+
+                {{if eq .Protocol "vless"}}
+
+                <button
+                    type="button"
+                    onclick="changeUUID({{.ID}})"
+                >
+                    New UUID
+                </button>
+
+                {{else}}
+
+                <button
+                    type="button"
+                    onclick="changePassword({{.ID}})"
+                >
+                    New Password
+                </button>
+
+                {{end}}
+
+                <button
+                    type="button"
+                    onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
+                >
+                    Quota
+                </button>
+
+                <button
+                    type="button"
+                    onclick="resetTraffic({{.ID}})"
+                >
+                    Reset Traffic
+                </button>
+
+                <form
+                    method="POST"
+                    action="/clients/delete"
+                    onsubmit="return confirm('Delete this client?');"
+                >
+
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="{{.ID}}"
+                    >
+
+                    <button
+                        class="danger"
+                        type="submit"
+                    >
+                        Delete
+                    </button>
+
+                </form>
+
             </div>
-
-        {{end}}
-
-    </div>
-
-</div>
-
-
-<!-- QR MODAL -->
-
-<div
-    id="qrModal"
-    class="modal"
-    onclick="closeQR(event)"
->
-
-    <div
-        class="modal-content"
-        onclick="event.stopPropagation()"
-    >
-
-        <h3>Client QR Code</h3>
-
-        <div id="qrcode"></div>
-
-        <textarea
-            id="qrConfig"
-            class="qr-config"
-            readonly
-        ></textarea>
-
-        <div class="modal-actions">
-
-            <button
-                type="button"
-                onclick="copyQRConfig()"
-            >
-                📋 Copy
-            </button>
-
-            <button
-                type="button"
-                class="close-modal"
-                onclick="hideQR()"
-            >
-                Close
-            </button>
 
         </div>
 
+        {{end}}
+
+    {{else}}
+
+        <div class="empty">
+            No clients yet.
+        </div>
+
+    {{end}}
+
+</div>
+
+</div><!-- QR MODAL --><div
+    id="qrModal"
+    class="modal"
+    onclick="closeQR(event)"
+><div
+    class="modal-content"
+    onclick="event.stopPropagation()"
+>
+
+    <h3>Client QR Code</h3>
+
+    <div id="qrcode"></div>
+
+    <textarea
+        id="qrConfig"
+        class="qr-config"
+        readonly
+    ></textarea>
+
+    <div class="modal-actions">
+
+        <button
+            type="button"
+            onclick="copyQRConfig()"
+        >
+            📋 Copy
+        </button>
+
+        <button
+            type="button"
+            class="close-modal"
+            onclick="hideQR()"
+        >
+            Close
+        </button>
+
     </div>
 
 </div>
 
-
-<!-- QR CODE LIBRARY -->
-
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
-
-<script>
+</div><!-- QR CODE LIBRARY --><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script>
 
 async function copyConfig(id) {
 
@@ -1608,7 +1643,5 @@ document.addEventListener(
     }
 );
 
-</script>
-
-</body>
+</script></body>
 </html>
