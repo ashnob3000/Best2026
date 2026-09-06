@@ -48,6 +48,13 @@ func NewClientHandler(
 	}
 }
 
+// dashboardRedirect redirects to the dashboard with a unique URL.
+// This prevents the browser/proxy from reusing a previously rendered dashboard.
+func dashboardRedirect(w http.ResponseWriter, r *http.Request) {
+	redirectURL := "/?refresh=" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
 // Create creates a new client.
 func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 
@@ -124,7 +131,7 @@ func (h *ClientHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // Delete deletes a client.
@@ -162,7 +169,7 @@ func (h *ClientHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // EditName changes the name of a client.
@@ -208,8 +215,6 @@ func (h *ClientHandler) EditName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Name is also used as the URI fragment in generated configs.
-	// Reloading keeps the generated Xray config in sync.
 	if h.XrayManager != nil {
 		if err := h.XrayManager.Reload(); err != nil {
 			http.Error(
@@ -221,7 +226,7 @@ func (h *ClientHandler) EditName(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // ChangeUUID changes the UUID of a VLESS client.
@@ -280,7 +285,7 @@ func (h *ClientHandler) ChangeUUID(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // ChangePassword changes the password of a Trojan client.
@@ -339,7 +344,7 @@ func (h *ClientHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // SetEnabled enables or disables a client.
@@ -432,7 +437,7 @@ func (h *ClientHandler) SetEnabled(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // EditQuota changes the traffic quota of a client.
@@ -503,7 +508,7 @@ func (h *ClientHandler) EditQuota(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // ResetTraffic resets the accumulated traffic of a client.
@@ -548,7 +553,7 @@ func (h *ClientHandler) ResetTraffic(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	dashboardRedirect(w, r)
 }
 
 // Config generates the VLESS/Trojan configuration.
