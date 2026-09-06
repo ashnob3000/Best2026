@@ -79,7 +79,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		if lastSeenStr != nil && *lastSeenStr != "" {
 			if t, err := parseDatabaseTime(*lastSeenStr); err == nil {
 				c.LastSeen = &t
-				c.Online = time.Since(t) <= 2*time.Minute
+				c.Online = time.Since(t) <= 10*time.Second
 			} else {
 				log.Println("DASHBOARD TIME PARSE ERROR:", err)
 			}
