@@ -924,14 +924,14 @@ async function showQR(id) {
         ).value = config;
 
         new QRCode(
-            qrContainer,
-            {
-                text: config,
-                width: 256,
-                height: 256,
-                correctLevel: QRCode.CorrectLevel.M
-            }
-        );
+    qrContainer,
+    {
+        text: config,
+        width: 320,
+        height: 320,
+        correctLevel: QRCode.CorrectLevel.L
+    }
+);
 
         document
             .getElementById("qrModal")
