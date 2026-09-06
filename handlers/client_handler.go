@@ -660,6 +660,7 @@ func (h *ClientHandler) Config(w http.ResponseWriter, r *http.Request) {
 			host,
 			url.QueryEscape(host),
 			url.QueryEscape("/trojan"),
+			url.QueryEscape(host),
 			url.QueryEscape(name),
 		)
 	}
