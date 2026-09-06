@@ -188,8 +188,11 @@ button:active {
 }
 
 .online-label {
-    color: #81C784 !important;
+    color: #4CAF50 !important;
     font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .online-label.offline {
@@ -290,9 +293,9 @@ button:active {
     width: 50px;
     height: 26px;
     padding: 0;
-    border: 1px solid #555555;
+    border: 1px solid #3b82f6;
     border-radius: 999px;
-    background: #353535;
+    background: rgba(59,130,246,.20);
     cursor: pointer;
     transition:
         background .2s ease,
@@ -306,7 +309,7 @@ button:active {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #777777;
+    background: #60a5fa;
     transition:
         transform .2s ease,
         background .2s ease,
@@ -314,34 +317,34 @@ button:active {
 }
 
 .status-toggle.enabled {
-    background: rgba(76,175,80,.22);
-    border-color: #4CAF50;
+    background: rgba(59,130,246,.22);
+    border-color: #3b82f6;
 }
 
 .status-toggle.enabled .toggle-knob {
     transform: translateX(24px);
-    background: #4CAF50;
-    box-shadow: 0 0 9px rgba(76,175,80,.65);
+    background: #3b82f6;
+    box-shadow: 0 0 9px rgba(59,130,246,.65);
 }
 
 .status-toggle.disabled {
     background: #292929;
-    border-color: #4a4a4a;
+    border-color: #3b5f91;
 }
 
 .status-toggle.disabled .toggle-knob {
     transform: translateX(0);
-    background: #666666;
+    background: #64748b;
     box-shadow: none;
 }
 
 .status-toggle:hover {
-    background: rgba(76,175,80,.18);
-    border-color: #66BB6A;
+    background: rgba(59,130,246,.30);
+    border-color: #60a5fa;
 }
 
 .status-toggle.disabled:hover {
-    background: #353535;
+    background: rgba(59,130,246,.15);
 }
 
 .status-toggle:disabled {
@@ -579,17 +582,6 @@ button:active {
 
             <div class="client-name-row">
 
-                <span
-                    class="status-dot {{if .Online}}online{{end}}"
-                    title="{{if .Online}}Online{{else}}Offline{{end}}"
-                ></span>
-
-                <div class="client-name">
-                    {{.Name}}
-                </div>
-
-                <!-- ENABLE / DISABLE -->
-
                 <button
                     type="button"
                     class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"
@@ -603,8 +595,17 @@ button:active {
                 <span
                     class="online-label {{if not .Online}}offline{{end}}"
                 >
+                    <span
+                        class="status-dot {{if .Online}}online{{end}}"
+                        title="{{if .Online}}Online{{else}}Offline{{end}}"
+                    ></span>
+
                     {{if .Online}}Online{{else}}Offline{{end}}
                 </span>
+
+                <div class="client-name">
+                    {{.Name}}
+                </div>
 
             </div>
 
