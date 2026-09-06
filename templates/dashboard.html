@@ -1,1619 +1,1664 @@
-<!DOCTYPE html><html lang="en">  <head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Best2026 Panel</title>  <style>  
-    * {  
-        box-sizing: border-box;  
-    }  
-  
-    body {  
-        margin: 0;  
-        font-family: Arial, sans-serif;  
-        background: #121212;  
-        color: #ffffff;  
-    }  
-  
-    .container {  
-        max-width: 1050px;  
-        margin: 40px auto;  
-        padding: 20px;  
-    }  
-  
-    .header {  
-        display: flex;  
-        justify-content: space-between;  
-        align-items: center;  
-        margin-bottom: 25px;  
-    }  
-  
-    .header h1 {  
-        margin: 0;  
-        color: #81C784;  
-        letter-spacing: .3px;  
-    }  
-  
-    .card {  
-        background: #2a2a2a;  
-        border: 1px solid #383838;  
-        border-radius: 12px;  
-        padding: 20px;  
-        margin-bottom: 20px;  
-        box-shadow: 0 8px 25px rgba(0,0,0,.25);  
-    }  
-  
-    .card h2 {  
-        margin-top: 0;  
-        color: #81C784;  
-    }  
-  
-    .form-row {  
-        display: flex;  
-        gap: 10px;  
-        flex-wrap: wrap;  
-    }  
-  
-    input,  
-    select,  
-    button {  
-        font-size: 15px;  
-        padding: 11px 14px;  
-        border-radius: 8px;  
-    }  
-  
-    input,  
-    select {  
-        border: 1px solid #454545;  
-        background: #333333;  
-        color: #ffffff;  
-        outline: none;  
-    }  
-  
-    input::placeholder {  
-        color: #999999;  
-    }  
-  
-    input:focus,  
-    select:focus {  
-        border-color: #4CAF50;  
-        box-shadow: 0 0 0 2px rgba(76,175,80,.15);  
-    }  
-  
-    input {  
-        flex: 1;  
-        min-width: 180px;  
-    }  
-  
-    select {  
-        min-width: 180px;  
-    }  
-  
-    button {  
-        cursor: pointer;  
-        background: #333333;  
-        color: #ffffff;  
-        border: 1px solid #4a4a4a;  
-        transition:  
-            background .15s ease,  
-            border-color .15s ease,  
-            color .15s ease,  
-            transform .1s ease;  
-    }  
-  
-    button:hover {  
-        background: #66BB6A;  
-        border-color: #66BB6A;  
-        color: #121212;  
-    }  
-  
-    button:active {  
-        transform: translateY(1px);  
-    }  
-  
-    /* CREATE CLIENT */  
-  
-    .create-client-button {  
-        background: #4CAF50;  
-        color: #121212;  
-        border-color: #4CAF50;  
-        font-weight: bold;  
-    }  
-  
-    .create-client-button:hover {  
-        background: #66BB6A;  
-        border-color: #66BB6A;  
-        color: #121212;  
-    }  
-  
-    .client {  
-        padding: 20px 0;  
-        border-bottom: 1px solid #3a3a3a;  
-    }  
-  
-    .client:last-child {  
-        border-bottom: none;  
-    }  
-  
-    .client-top {  
-        display: flex;  
-        justify-content: space-between;  
-        align-items: flex-start;  
-        gap: 20px;  
-    }  
-  
-    .client-info {  
-        min-width: 0;  
-        flex: 1;  
-    }  
-  
-    .client-name-row {  
-        display: flex;  
-        align-items: center;  
-        gap: 9px;  
-        flex-wrap: wrap;  
-    }  
-  
-    .status-dot {  
-        width: 10px;  
-        height: 10px;  
-        min-width: 10px;  
-        border-radius: 50%;  
-        background: #666666;  
-        box-shadow: 0 0 0 2px rgba(255,255,255,.05);  
-    }  
-  
-    .status-dot.online {  
-        background: #4CAF50;  
-        box-shadow: 0 0 8px rgba(76,175,80,.65);  
-        animation: onlinePulse 1.5s ease-in-out infinite;  
-    }  
-  
-    @keyframes onlinePulse {  
-        0%, 100% {  
-            opacity: .35;  
-            transform: scale(.9);  
-            box-shadow: 0 0 3px rgba(76,175,80,.25);  
-        }  
-  
-        50% {  
-            opacity: 1;  
-            transform: scale(1.15);  
-            box-shadow: 0 0 10px rgba(76,175,80,.8);  
-        }  
-    }  
-  
-    .client-name {  
-        font-weight: bold;  
-        font-size: 17px;  
-        color: #ffffff;  
-    }  
-  
-    .online-label {  
-        color: #81C784 !important;  
-        font-size: 12px;  
-    }  
-  
-    .protocol {  
-        margin-top: 5px;  
-        color: #ffffff;  
-        font-size: 14px;  
-    }  
-  
-    /* TRAFFIC */  
-  
-    .traffic {  
-        margin-top: 14px;  
-    }  
-  
-    .traffic-header {  
-        display: flex;  
-        justify-content: space-between;  
-        gap: 10px;  
-        margin-bottom: 7px;  
-        font-size: 14px;  
-    }  
-  
-    .traffic-used {  
-        font-weight: bold;  
-        color: #81C784;  
-    }  
-  
-    .traffic-limit {  
-        color: #b0b0b0;  
-    }  
-  
-    .progress {  
-        width: 100%;  
-        height: 9px;  
-        background: #3a3a3a;  
-        border-radius: 999px;  
-        overflow: hidden;  
-    }  
-  
-    .progress-bar {  
-        height: 100%;  
-        width: 0%;  
-        background: #4CAF50;  
-        border-radius: 999px;  
-        transition: width .3s ease;  
-    }  
-  
-    .progress-bar.full {  
-        background: #ef5350;  
-    }  
-  
-    .unlimited {  
-        color: #999999;  
-        font-size: 13px;  
-        margin-top: 7px;  
-    }  
-  
-    .disabled {  
-        color: #ef5350;  
-        font-weight: bold;  
-        font-size: 13px;  
-        margin-top: 7px;  
-    }  
-  
-    .quota-status {  
-        display: none;  
-    }  
-  
-    .quota-status.show {  
-        display: block;  
-    }  
-  
-    /* TOP ACTIONS */  
-  
-    .actions {  
-        display: flex;  
-        align-items: center;  
-        gap: 8px;  
-        flex-wrap: wrap;  
-        justify-content: flex-end;  
-        max-width: 430px;  
-    }  
-  
-    .actions button {  
-        white-space: nowrap;  
-    }  
-  
-    /* ENABLE / DISABLE TOGGLE */  
-  
-    .status-toggle {  
-        position: relative;  
-        display: inline-flex;  
-        align-items: center;  
-        width: 50px;  
-        height: 26px;  
-        padding: 0;  
-        border: 1px solid #555555;  
-        border-radius: 999px;  
-        background: #353535;  
-        cursor: pointer;  
-        transition:  
-            background .2s ease,  
-            border-color .2s ease;  
-    }  
-  
-    .status-toggle .toggle-knob {  
-        position: absolute;  
-        top: 3px;  
-        left: 3px;  
-        width: 18px;  
-        height: 18px;  
-        border-radius: 50%;  
-        background: #777777;  
-        transition:  
-            transform .2s ease,  
-            background .2s ease,  
-            box-shadow .2s ease;  
-    }  
-  
-    .status-toggle.enabled {  
-        background: rgba(76,175,80,.22);  
-        border-color: #4CAF50;  
-    }  
-  
-    .status-toggle.enabled .toggle-knob {  
-        transform: translateX(24px);  
-        background: #4CAF50;  
-        box-shadow: 0 0 9px rgba(76,175,80,.65);  
-    }  
-  
-    .status-toggle.disabled {  
-        background: #292929;  
-        border-color: #4a4a4a;  
-    }  
-  
-    .status-toggle.disabled .toggle-knob {  
-        transform: translateX(0);  
-        background: #666666;  
-        box-shadow: none;  
-    }  
-  
-    .status-toggle:hover {  
-        background: rgba(76,175,80,.18);  
-        border-color: #66BB6A;  
-    }  
-  
-    .status-toggle.disabled:hover {  
-        background: #353535;  
-    }  
-  
-    .status-toggle:disabled {  
-        opacity: .65;  
-        cursor: not-allowed;  
-    }  
-  
-    /* MORE */  
-  
-    .more-wrapper {  
-        position: relative;  
-    }  
-  
-    .more-button {  
-        min-width: 74px;  
-        background: #333333;  
-        color: #ffffff;  
-    }  
-  
-    .more-menu {  
-        display: none;  
-        margin-top: 12px;  
-        padding: 12px;  
-        background: #242424;  
-        border: 1px solid #3a3a3a;  
-        border-radius: 10px;  
-        gap: 8px;  
-        flex-wrap: wrap;  
-        justify-content: flex-end;  
-    }  
-  
-    .more-menu.show {  
-        display: flex;  
-    }  
-  
-    .more-menu button {  
-        background: #333333;  
-        color: #ffffff;  
-        border: 1px solid #454545;  
-    }  
-  
-    .more-menu button:hover {  
-        background: #66BB6A;  
-        color: #121212;  
-        border-color: #66BB6A;  
-    }  
-  
-    .more-menu .danger {  
-        color: #ef5350;  
-        border-color: #713b3b;  
-    }  
-  
-    .more-menu .danger:hover {  
-        background: #ef5350;  
-        color: #121212;  
-        border-color: #ef5350;  
-    }  
-  
-    .more-menu form {  
-        margin: 0;  
-    }  
-  
-    .empty {  
-        color: #999999;  
-        text-align: center;  
-        padding: 30px 0;  
-    }  
-  
-    .hint {  
-        color: #999999;  
-        font-size: 13px;  
-        margin-top: 8px;  
-    }  
-  
-    /* QR MODAL */  
-  
-    .modal {  
-        display: none;  
-        position: fixed;  
-        z-index: 1000;  
-        inset: 0;  
-        background: rgba(0,0,0,.72);  
-        align-items: center;  
-        justify-content: center;  
-        padding: 20px;  
-        backdrop-filter: blur(3px);  
-    }  
-  
-    .modal.show {  
-        display: flex;  
-    }  
-  
-    .modal-content {  
-        background: #2a2a2a;  
-        border: 1px solid #404040;  
-        border-radius: 14px;  
-        padding: 25px;  
-        width: 100%;  
-        max-width: 420px;  
-        text-align: center;  
-        box-shadow: 0 15px 50px rgba(0,0,0,.45);  
-    }  
-  
-    .modal-content h3 {  
-        margin-top: 0;  
-        margin-bottom: 20px;  
-        color: #81C784;  
-    }  
-  
-    #qrcode {  
-        display: flex;  
-        justify-content: center;  
-        align-items: center;  
-        margin: 15px auto 20px;  
-        min-height: 256px;  
-        background: #ffffff;  
-        border-radius: 8px;  
-        width: 256px;  
-        padding: 4px;  
-    }  
-  
-    #qrcode img,  
-    #qrcode canvas {  
-        max-width: 256px;  
-        max-height: 256px;  
-    }  
-  
-    .qr-config {  
-        width: 100%;  
-        min-height: 90px;  
-        resize: vertical;  
-        padding: 10px;  
-        background: #181818;  
-        color: #d1d5db;  
-        border: 1px solid #3f3f3f;  
-        border-radius: 8px;  
-        font-size: 12px;  
-        margin-bottom: 12px;  
-        outline: none;  
-    }  
-  
-    .modal-actions {  
-        display: flex;  
-        justify-content: center;  
-        gap: 8px;  
-        flex-wrap: wrap;  
-    }  
-  
-    .close-modal {  
-        background: #444444;  
-        color: #ffffff;  
-    }  
-  
-    @media (max-width: 700px) {  
-  
-        .container {  
-            margin: 20px auto;  
-            padding: 14px;  
-        }  
-  
-        .card {  
-            padding: 16px;  
-        }  
-  
-        .client-top {  
-            flex-direction: column;  
-        }  
-  
-        .actions {  
-            justify-content: flex-start;  
-            max-width: none;  
-            width: 100%;  
-        }  
-  
-        .more-wrapper {  
-            width: 100%;  
-        }  
-  
-        .more-menu {  
-            justify-content: flex-start;  
-        }  
-  
-    }  
-</style>  </head><body><div class="container"><div class="header">  
-    <h1>TINY HOLE</h1>  
-</div>  <!-- CREATE CLIENT -->  <div class="card">  <h2>Create Client</h2>  
-
-<form method="POST" action="/clients/create">  
-
-    <div class="form-row">  
-
-        <input  
-            type="text"  
-            name="name"  
-            placeholder="Client name"  
-            required  
-        >  
-
-        <select name="protocol" required>  
-            <option value="vless">VLESS WS TLS</option>  
-            <option value="trojan">Trojan WS TLS</option>  
-        </select>  
-
-        <input  
-            type="number"  
-            name="quota"  
-            placeholder="Quota (GB)"  
-            min="0"  
-            step="0.1"  
-        >  
-
-        <button  
-            type="submit"  
-            class="create-client-button"  
-        >  
-            Create Client  
-        </button>  
-
-    </div>  
-
-    <div class="hint">  
-        Leave quota empty or set it to 0 for unlimited traffic.  
-    </div>  
-
-</form>
-
-</div>  <!-- CLIENTS -->  <div class="card">  <h2>Clients</h2>  
-
-{{if .Clients}}  
-
-    {{range .Clients}}  
-
-    <div  
-        class="client"  
-        data-client-id="{{.ID}}"  
-    >  
-
-        <div class="client-top">  
-
-            <div class="client-info">  
-
-                <div class="client-name-row">  
-
-                    <span  
-                        class="status-dot {{if .Online}}online{{end}}"  
-                        title="{{if .Online}}Online{{else}}Offline{{end}}"  
-                    ></span>  
-
-                    <div class="client-name">  
-                        {{.Name}}  
-                    </div>  
-
-                    <!-- ENABLE / DISABLE -->  
-
-                    <button  
-                        type="button"  
-                        class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"  
-                        onclick="toggleClientStatus({{.ID}}, {{if .Enabled}}true{{else}}false{{end}})"  
-                        aria-label="{{if .Enabled}}Disable client{{else}}Enable client{{end}}"  
-                        title="{{if .Enabled}}Disable{{else}}Enable{{end}}"  
-                    >  
-                        <span class="toggle-knob"></span>  
-                    </button>  
-
-                    <span  
-                        class="online-label"  
-                    >  
-                        {{if .Online}}Online{{else}}Offline{{end}}  
-                    </span>  
-
-                </div>  
-
-                <div class="protocol">  
-
-                    {{if eq .Protocol "vless"}}  
-                        VLESS • WS • TLS  
-                    {{else}}  
-                        Trojan • WS • TLS  
-                    {{end}}  
-
-                </div>  
-
-                <!-- TRAFFIC -->  
-
-                <div class="traffic">  
-
-                    {{if gt .TrafficLimit 0}}  
-
-                        <div class="traffic-header">  
-
-                            <span class="traffic-used">  
-                                {{formatBytes .TrafficUsed}}  
-                            </span>  
-
-                            <span class="traffic-limit">  
-                                / {{formatBytes .TrafficLimit}}  
-                            </span>  
-
-                        </div>  
-
-                        <div class="progress">  
-
-                            <div  
-                                class="progress-bar {{if ge .TrafficUsed .TrafficLimit}}full{{end}}"  
-                                style="width: {{percentage .TrafficUsed .TrafficLimit}}%;"  
-                            ></div>  
-
-                        </div>  
-
-                    {{else}}  
-
-                        <div class="traffic-header">  
-
-                            <span class="traffic-used">  
-                                {{formatBytes .TrafficUsed}}  
-                            </span>  
-
-                            <span class="traffic-limit">  
-                                Unlimited  
-                            </span>  
-
-                        </div>  
-
-                        <div class="unlimited">  
-                            No traffic limit  
-                        </div>  
-
-                    {{end}}  
-
-                    <div  
-                        class="quota-status disabled {{if not .Enabled}}show{{end}}"  
-                    >  
-                        Disabled  
-                    </div>  
-
-                </div>  
-
-            </div>  
-
-
-            <!-- ACTIONS -->  
-
-            <div class="actions">  
-
-                <button  
-                    type="button"  
-                    onclick="copyConfig({{.ID}})"  
-                >  
-                    📋 Copy  
-                </button>  
-
-                <button  
-                    type="button"  
-                    onclick="showQR({{.ID}})"  
-                >  
-                    📱 QR  
-                </button>  
-
-                <!-- MORE -->  
-
-                <button  
-                    type="button"  
-                    class="more-button"  
-                    onclick="toggleMore({{.ID}})"  
-                >  
-                    More ⋮  
-                </button>  
-
-            </div>  
-
-        </div>  
-
-
-        <!-- MORE MENU -->  
-
-        <div  
-            class="more-menu"  
-            id="more-{{.ID}}"  
-        >  
-
-            <button  
-                type="button"  
-                onclick="editName({{.ID}}, {{printf "%q" .Name}})"  
-            >  
-                Rename  
-            </button>  
-
-            {{if eq .Protocol "vless"}}  
-
-            <button  
-                type="button"  
-                onclick="changeUUID({{.ID}})"  
-            >  
-                New UUID  
-            </button>  
-
-            {{else}}  
-
-            <button  
-                type="button"  
-                onclick="changePassword({{.ID}})"  
-            >  
-                New Password  
-            </button>  
-
-            {{end}}  
-
-            <button  
-                type="button"  
-                onclick="editQuota({{.ID}}, {{.TrafficLimit}})"  
-            >  
-                Quota  
-            </button>  
-
-            <button  
-                type="button"  
-                onclick="resetTraffic({{.ID}})"  
-            >  
-                Reset Traffic  
-            </button>  
-
-            <form  
-                method="POST"  
-                action="/clients/delete"  
-                onsubmit="return confirm('Delete this client?');"  
-            >  
-
-                <input  
-                    type="hidden"  
-                    name="id"  
-                    value="{{.ID}}"  
-                >  
-
-                <button  
-                    class="danger"  
-                    type="submit"  
-                >  
-                    Delete  
-                </button>  
-
-            </form>  
-
-        </div>  
-
-    </div>  
-
-    {{end}}  
-
-{{else}}  
-
-    <div class="empty">  
-        No clients yet.  
-    </div>  
-
-{{end}}
-
-</div>  </div><!-- QR MODAL --><div  
-    id="qrModal"  
-    class="modal"  
-    onclick="closeQR(event)"  
-><div  
-    class="modal-content"  
-    onclick="event.stopPropagation()"  
->  <h3>Client QR Code</h3>  
-
-<div id="qrcode"></div>  
-
-<textarea  
-    id="qrConfig"  
-    class="qr-config"  
-    readonly  
-></textarea>  
-
-<div class="modal-actions">  
-
-    <button  
-        type="button"  
-        onclick="copyQRConfig()"  
-    >  
-        📋 Copy  
-    </button>  
-
-    <button  
-        type="button"  
-        class="close-modal"  
-        onclick="hideQR()"  
-    >  
-        Close  
-    </button>  
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best2026 Panel</title><style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #ffffff;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    margin: 0;
+    color: #81C784;
+    letter-spacing: .3px;
+}
+
+.card {
+    background: #2a2a2a;
+    border: 1px solid #383838;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.25);
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #81C784;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input,
+select,
+button {
+    font-size: 15px;
+    padding: 11px 14px;
+    border-radius: 8px;
+}
+
+input,
+select {
+    border: 1px solid #454545;
+    background: #333333;
+    color: #ffffff;
+    outline: none;
+}
+
+input::placeholder {
+    color: #999999;
+}
+
+input:focus,
+select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76,175,80,.15);
+}
+
+input {
+    flex: 1;
+    min-width: 180px;
+}
+
+select {
+    min-width: 180px;
+}
+
+button {
+    cursor: pointer;
+    background: #333333;
+    color: #ffffff;
+    border: 1px solid #4a4a4a;
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        transform .1s ease;
+}
+
+button:hover {
+    background: #66BB6A;
+    border-color: #66BB6A;
+    color: #121212;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* CREATE CLIENT */
+
+.create-client-button {
+    background: #4CAF50;
+    color: #121212;
+    border-color: #4CAF50;
+    font-weight: bold;
+}
+
+.create-client-button:hover {
+    background: #66BB6A;
+    border-color: #66BB6A;
+    color: #121212;
+}
+
+.client {
+    padding: 20px 0;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.client:last-child {
+    border-bottom: none;
+}
+
+.client-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.client-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.client-name-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    background: #666666;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.05);
+}
+
+.status-dot.online {
+    background: #4CAF50;
+    box-shadow: 0 0 8px rgba(76,175,80,.65);
+    animation: onlinePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes onlinePulse {
+    0%, 100% {
+        opacity: .35;
+        transform: scale(.9);
+        box-shadow: 0 0 3px rgba(76,175,80,.25);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+        box-shadow: 0 0 10px rgba(76,175,80,.8);
+    }
+}
+
+.client-name {
+    font-weight: bold;
+    font-size: 17px;
+    color: #ffffff;
+}
+
+.online-label {
+    color: #81C784 !important;
+    font-size: 12px;
+}
+
+.online-label.offline {
+    color: #888888 !important;
+}
+
+.protocol {
+    margin-top: 5px;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* TRAFFIC */
+
+.traffic {
+    margin-top: 14px;
+}
+
+.traffic-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+.traffic-used {
+    font-weight: bold;
+    color: #81C784;
+}
+
+.traffic-limit {
+    color: #b0b0b0;
+}
+
+.progress {
+    width: 100%;
+    height: 9px;
+    background: #3a3a3a;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #4CAF50;
+    border-radius: 999px;
+    transition: width .3s ease;
+}
+
+.progress-bar.full {
+    background: #ef5350;
+}
+
+.unlimited {
+    color: #999999;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.disabled {
+    color: #ef5350;
+    font-weight: bold;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.quota-status {
+    display: none;
+}
+
+.quota-status.show {
+    display: block;
+}
+
+/* TOP ACTIONS */
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 430px;
+}
+
+.actions button {
+    white-space: nowrap;
+}
+
+/* ENABLE / DISABLE TOGGLE */
+
+.status-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 50px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid #555555;
+    border-radius: 999px;
+    background: #353535;
+    cursor: pointer;
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.status-toggle .toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #777777;
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.status-toggle.enabled {
+    background: rgba(76,175,80,.22);
+    border-color: #4CAF50;
+}
+
+.status-toggle.enabled .toggle-knob {
+    transform: translateX(24px);
+    background: #4CAF50;
+    box-shadow: 0 0 9px rgba(76,175,80,.65);
+}
+
+.status-toggle.disabled {
+    background: #292929;
+    border-color: #4a4a4a;
+}
+
+.status-toggle.disabled .toggle-knob {
+    transform: translateX(0);
+    background: #666666;
+    box-shadow: none;
+}
+
+.status-toggle:hover {
+    background: rgba(76,175,80,.18);
+    border-color: #66BB6A;
+}
+
+.status-toggle.disabled:hover {
+    background: #353535;
+}
+
+.status-toggle:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+/* MORE */
+
+.more-wrapper {
+    position: relative;
+}
+
+.more-button {
+    min-width: 74px;
+    background: #333333;
+    color: #ffffff;
+}
+
+.more-menu {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: #242424;
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.more-menu.show {
+    display: flex;
+}
+
+.more-menu button {
+    background: #333333;
+    color: #ffffff;
+    border: 1px solid #454545;
+}
+
+.more-menu button:hover {
+    background: #66BB6A;
+    color: #121212;
+    border-color: #66BB6A;
+}
+
+.more-menu .danger {
+    color: #ef5350;
+    border-color: #713b3b;
+}
+
+.more-menu .danger:hover {
+    background: #ef5350;
+    color: #121212;
+    border-color: #ef5350;
+}
+
+.more-menu form {
+    margin: 0;
+}
+
+.empty {
+    color: #999999;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.hint {
+    color: #999999;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* QR MODAL */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(3px);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #2a2a2a;
+    border: 1px solid #404040;
+    border-radius: 14px;
+    padding: 25px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 15px 50px rgba(0,0,0,.45);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #81C784;
+}
+
+#qrcode {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px auto 20px;
+    min-height: 256px;
+    background: #ffffff;
+    border-radius: 8px;
+    width: 256px;
+    padding: 4px;
+}
+
+#qrcode img,
+#qrcode canvas {
+    max-width: 256px;
+    max-height: 256px;
+}
+
+.qr-config {
+    width: 100%;
+    min-height: 90px;
+    resize: vertical;
+    padding: 10px;
+    background: #181818;
+    color: #d1d5db;
+    border: 1px solid #3f3f3f;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 12px;
+    outline: none;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.close-modal {
+    background: #444444;
+    color: #ffffff;
+}
+
+@media (max-width: 700px) {
+
+    .container {
+        margin: 20px auto;
+        padding: 14px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .client-top {
+        flex-direction: column;
+    }
+
+    .actions {
+        justify-content: flex-start;
+        max-width: none;
+        width: 100%;
+    }
+
+    .more-wrapper {
+        width: 100%;
+    }
+
+    .more-menu {
+        justify-content: flex-start;
+    }
+
+}
+
+</style>
+</head><body><div class="container"><div class="header">
+    <h1>TINY HOLE</h1>
+</div><!-- CREATE CLIENT --><div class="card"><h2>Create Client</h2><form method="POST" action="/clients/create"><div class="form-row">
+
+    <input
+        type="text"
+        name="name"
+        placeholder="Client name"
+        required
+    >
+
+    <select name="protocol" required>
+        <option value="vless">VLESS WS TLS</option>
+        <option value="trojan">Trojan WS TLS</option>
+    </select>
+
+    <input
+        type="number"
+        name="quota"
+        placeholder="Quota (GB)"
+        min="0"
+        step="0.1"
+    >
+
+    <button
+        type="submit"
+        class="create-client-button"
+    >
+        Create Client
+    </button>
 
 </div>
 
-</div>  </div><!-- QR CODE LIBRARY --><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script>  async function copyConfig(id) {
+<div class="hint">
+    Leave quota empty or set it to 0 for unlimited traffic.
+</div>
 
-try {  
+</form></div><!-- CLIENTS --><div class="card"><h2>Clients</h2>{{if .Clients}}
 
-    const response = await fetch(  
-        "/clients/config?id=" +  
-        encodeURIComponent(id)  
-    );  
+{{range .Clients}}
 
-    if (!response.ok) {  
+<div
+    class="client"
+    data-client-id="{{.ID}}"
+>
 
-        const message = await response.text();  
+    <div class="client-top">
 
-        alert(  
-            message ||  
-            "Failed to generate configuration"  
-        );  
+        <div class="client-info">
 
-        return;  
-    }  
+            <div class="client-name-row">
 
-    const config = await response.text();  
+                <span
+                    class="status-dot {{if .Online}}online{{end}}"
+                    title="{{if .Online}}Online{{else}}Offline{{end}}"
+                ></span>
 
-    await navigator.clipboard.writeText(config);  
+                <div class="client-name">
+                    {{.Name}}
+                </div>
 
-    alert("Configuration copied!");  
+                <!-- ENABLE / DISABLE -->
 
-} catch (error) {  
+                <button
+                    type="button"
+                    class="status-toggle {{if .Enabled}}enabled{{else}}disabled{{end}}"
+                    onclick="toggleClientStatus({{.ID}}, {{if .Enabled}}true{{else}}false{{end}})"
+                    aria-label="{{if .Enabled}}Disable client{{else}}Enable client{{end}}"
+                    title="{{if .Enabled}}Disable{{else}}Enable{{end}}"
+                >
+                    <span class="toggle-knob"></span>
+                </button>
 
-    alert("Failed to copy configuration");  
+                <span
+                    class="online-label {{if not .Online}}offline{{end}}"
+                >
+                    {{if .Online}}Online{{else}}Offline{{end}}
+                </span>
+
+            </div>
+
+            <div class="protocol">
+
+                {{if eq .Protocol "vless"}}
+                    VLESS • WS • TLS
+                {{else}}
+                    Trojan • WS • TLS
+                {{end}}
+
+            </div>
+
+            <!-- TRAFFIC -->
+
+            <div class="traffic">
+
+                {{if gt .TrafficLimit 0}}
+
+                    <div class="traffic-header">
+
+                        <span class="traffic-used">
+                            {{formatBytes .TrafficUsed}}
+                        </span>
+
+                        <span class="traffic-limit">
+                            / {{formatBytes .TrafficLimit}}
+                        </span>
+
+                    </div>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar {{if ge .TrafficUsed .TrafficLimit}}full{{end}}"
+                            style="width: {{percentage .TrafficUsed .TrafficLimit}}%;"
+                        ></div>
+
+                    </div>
+
+                {{else}}
+
+                    <div class="traffic-header">
+
+                        <span class="traffic-used">
+                            {{formatBytes .TrafficUsed}}
+                        </span>
+
+                        <span class="traffic-limit">
+                            Unlimited
+                        </span>
+
+                    </div>
+
+                    <div class="unlimited">
+                        No traffic limit
+                    </div>
+
+                {{end}}
+
+                <div
+                    class="quota-status disabled {{if not .Enabled}}show{{end}}"
+                >
+                    Disabled
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ACTIONS -->
+
+        <div class="actions">
+
+            <button
+                type="button"
+                onclick="copyConfig({{.ID}})"
+            >
+                📋 Copy
+            </button>
+
+            <button
+                type="button"
+                onclick="showQR({{.ID}})"
+            >
+                📱 QR
+            </button>
+
+            <!-- MORE -->
+
+            <button
+                type="button"
+                class="more-button"
+                onclick="toggleMore({{.ID}})"
+            >
+                More ⋮
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- MORE MENU -->
+
+    <div
+        class="more-menu"
+        id="more-{{.ID}}"
+    >
+
+        <button
+            type="button"
+            onclick="editName({{.ID}}, {{printf "%q" .Name}})"
+        >
+            Rename
+        </button>
+
+        {{if eq .Protocol "vless"}}
+
+        <button
+            type="button"
+            onclick="changeUUID({{.ID}})"
+        >
+            New UUID
+        </button>
+
+        {{else}}
+
+        <button
+            type="button"
+            onclick="changePassword({{.ID}})"
+        >
+            New Password
+        </button>
+
+        {{end}}
+
+        <button
+            type="button"
+            onclick="editQuota({{.ID}}, {{.TrafficLimit}})"
+        >
+            Quota
+        </button>
+
+        <button
+            type="button"
+            onclick="resetTraffic({{.ID}})"
+        >
+            Reset Traffic
+        </button>
+
+        <form
+            method="POST"
+            action="/clients/delete"
+            onsubmit="return confirm('Delete this client?');"
+        >
+
+            <input
+                type="hidden"
+                name="id"
+                value="{{.ID}}"
+            >
+
+            <button
+                class="danger"
+                type="submit"
+            >
+                Delete
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{{end}}
+
+{{else}}
+
+<div class="empty">
+    No clients yet.
+</div>
+
+{{end}}
+
+</div></div><!-- QR MODAL --><div
+    id="qrModal"
+    class="modal"
+    onclick="closeQR(event)"
+><div
+    class="modal-content"
+    onclick="event.stopPropagation()"
+><h3>Client QR Code</h3><div id="qrcode"></div><textarea
+    id="qrConfig"
+    class="qr-config"
+    readonly
+></textarea><div class="modal-actions"><button
+    type="button"
+    onclick="copyQRConfig()"
+>
+    📋 Copy
+</button>
+
+<button
+    type="button"
+    class="close-modal"
+    onclick="hideQR()"
+>
+    Close
+</button>
+
+</div></div></div><!-- QR CODE LIBRARY --><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script>
+
+async function copyConfig(id) {
+
+try {
+
+    const response = await fetch(
+        "/clients/config?id=" +
+        encodeURIComponent(id)
+    );
+
+    if (!response.ok) {
+
+        const message = await response.text();
+
+        alert(
+            message ||
+            "Failed to generate configuration"
+        );
+
+        return;
+    }
+
+    const config = await response.text();
+
+    await navigator.clipboard.writeText(config);
+
+    alert("Configuration copied!");
+
+} catch (error) {
+
+    alert("Failed to copy configuration");
 
 }
 
 }
+
 
 async function showQR(id) {
 
-try {  
+try {
 
-    const response = await fetch(  
-        "/clients/config?id=" +  
-        encodeURIComponent(id)  
-    );  
+    const response = await fetch(
+        "/clients/config?id=" +
+        encodeURIComponent(id)
+    );
 
-    if (!response.ok) {  
+    if (!response.ok) {
 
-        const message = await response.text();  
+        const message = await response.text();
 
-        alert(  
-            message ||  
-            "Failed to generate configuration"  
-        );  
+        alert(
+            message ||
+            "Failed to generate configuration"
+        );
 
-        return;  
-    }  
+        return;
+    }
 
-    const config = await response.text();  
+    const config = await response.text();
 
-    const qrContainer =  
-        document.getElementById("qrcode");  
+    const qrContainer =
+        document.getElementById("qrcode");
 
-    qrContainer.innerHTML = "";  
+    qrContainer.innerHTML = "";
 
-    document.getElementById(  
-        "qrConfig"  
-    ).value = config;  
+    document.getElementById(
+        "qrConfig"
+    ).value = config;
 
-    new QRCode(  
-qrContainer,  
-{  
-    text: config,  
-    width: 320,  
-    height: 320,  
-    correctLevel: QRCode.CorrectLevel.L  
-}
+    new QRCode(
+        qrContainer,
+        {
+            text: config,
+            width: 320,
+            height: 320,
+            correctLevel: QRCode.CorrectLevel.L
+        }
+    );
 
-);
+    document
+        .getElementById("qrModal")
+        .classList.add("show");
 
-document  
-        .getElementById("qrModal")  
-        .classList.add("show");  
+} catch (error) {
 
-} catch (error) {  
-
-    alert("Failed to generate QR code");  
-
-}
+    alert("Failed to generate QR code");
 
 }
+
+}
+
 
 function hideQR() {
 
-document  
-    .getElementById("qrModal")  
+document
+    .getElementById("qrModal")
     .classList.remove("show");
 
 }
 
+
 function closeQR(event) {
 
-if (  
-    event.target ===  
-    document.getElementById("qrModal")  
-) {  
-    hideQR();  
+if (
+    event.target ===
+    document.getElementById("qrModal")
+) {
+
+    hideQR();
+
 }
 
 }
+
 
 async function copyQRConfig() {
 
-const config =  
-    document.getElementById(  
-        "qrConfig"  
-    ).value;  
+const config =
+    document.getElementById(
+        "qrConfig"
+    ).value;
 
-if (!config) {  
-    return;  
-}  
+if (!config) {
+    return;
+}
 
-try {  
+try {
 
-    await navigator.clipboard.writeText(config);  
+    await navigator.clipboard.writeText(config);
 
-    alert("Configuration copied!");  
+    alert("Configuration copied!");
 
-} catch (error) {  
+} catch (error) {
 
-    alert("Failed to copy configuration");  
+    alert("Failed to copy configuration");
 
 }
 
 }
+
 
 function toggleMore(id) {
 
-const menu =  
-    document.getElementById(  
-        "more-" + id  
-    );  
+const menu =
+    document.getElementById(
+        "more-" + id
+    );
 
-if (!menu) {  
-    return;  
-}  
+if (!menu) {
+    return;
+}
 
 menu.classList.toggle("show");
 
 }
 
+
 async function editName(id, currentName) {
 
-const value = prompt(  
-    "Enter new client name:",  
-    currentName  
-);  
+const value = prompt(
+    "Enter new client name:",
+    currentName
+);
 
-if (value === null) {  
-    return;  
-}  
+if (value === null) {
+    return;
+}
 
-const name = value.trim();  
+const name = value.trim();
 
-if (!name) {  
+if (!name) {
 
-    alert("Name cannot be empty.");  
+    alert("Name cannot be empty.");
 
-    return;  
-}  
+    return;
+}
 
-try {  
+try {
 
-    const form = new URLSearchParams();  
+    const form = new URLSearchParams();
 
-    form.append("id", id);  
-    form.append("name", name);  
+    form.append("id", id);
+    form.append("name", name);
 
-    const response = await fetch(  
-        "/clients/name",  
-        {  
-            method: "POST",  
-            headers: {  
-                "Content-Type":  
-                    "application/x-www-form-urlencoded"  
-            },  
-            body: form  
-        }  
-    );  
+    const response = await fetch(
+        "/clients/name",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body: form
+        }
+    );
 
-    if (!response.ok) {  
+    if (!response.ok) {
 
-        const message = await response.text();  
+        const message = await response.text();
 
-        alert(  
-            message ||  
-            "Failed to rename client"  
-        );  
+        alert(
+            message ||
+            "Failed to rename client"
+        );
 
-        return;  
-    }  
+        return;
+    }
 
-    window.location.reload();  
+    window.location.reload();
 
-} catch (error) {  
+} catch (error) {
 
-    alert("Failed to rename client");  
+    alert("Failed to rename client");
 
 }
 
 }
+
 
 async function changeUUID(id) {
 
-if (  
-    !confirm(  
-        "Generate a new UUID for this VLESS client?\n\n" +  
-        "The current UUID will stop working."  
-    )  
-) {  
-    return;  
-}  
+if (
+    !confirm(
+        "Generate a new UUID for this VLESS client?\n\n" +
+        "The current UUID will stop working."
+    )
+) {
 
-try {  
+    return;
 
-    const form = new URLSearchParams();  
+}
 
-    form.append("id", id);  
+try {
 
-    const response = await fetch(  
-        "/clients/uuid",  
-        {  
-            method: "POST",  
-            headers: {  
-                "Content-Type":  
-                    "application/x-www-form-urlencoded"  
-            },  
-            body: form  
-        }  
-    );  
+    const form = new URLSearchParams();
 
-    if (!response.ok) {  
+    form.append("id", id);
 
-        const message = await response.text();  
+    const response = await fetch(
+        "/clients/uuid",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body: form
+        }
+    );
 
-        alert(  
-            message ||  
-            "Failed to change UUID"  
-        );  
+    if (!response.ok) {
 
-        return;  
-    }  
+        const message = await response.text();
 
-    window.location.reload();  
+        alert(
+            message ||
+            "Failed to change UUID"
+        );
 
-} catch (error) {  
+        return;
+    }
 
-    alert("Failed to change UUID");  
+    window.location.reload();
+
+} catch (error) {
+
+    alert("Failed to change UUID");
 
 }
 
 }
+
 
 async function changePassword(id) {
 
-if (  
-    !confirm(  
-        "Generate a new password for this Trojan client?\n\n" +  
-        "The current password will stop working."  
-    )  
-) {  
-    return;  
-}  
+if (
+    !confirm(
+        "Generate a new password for this Trojan client?\n\n" +
+        "The current password will stop working."
+    )
+) {
 
-try {  
+    return;
 
-    const form = new URLSearchParams();  
+}
 
-    form.append("id", id);  
+try {
 
-    const response = await fetch(  
-        "/clients/password",  
-        {  
-            method: "POST",  
-            headers: {  
-                "Content-Type":  
-                    "application/x-www-form-urlencoded"  
-            },  
-            body: form  
-        }  
-    );  
+    const form = new URLSearchParams();
 
-    if (!response.ok) {  
+    form.append("id", id);
 
-        const message = await response.text();  
+    const response = await fetch(
+        "/clients/password",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body: form
+        }
+    );
 
-        alert(  
-            message ||  
-            "Failed to change password"  
-        );  
+    if (!response.ok) {
 
-        return;  
-    }  
+        const message = await response.text();
 
-    window.location.reload();  
+        alert(
+            message ||
+            "Failed to change password"
+        );
 
-} catch (error) {  
+        return;
+    }
 
-    alert("Failed to change password");  
+    window.location.reload();
+
+} catch (error) {
+
+    alert("Failed to change password");
 
 }
 
 }
+
 
 async function toggleClientStatus(id, currentlyEnabled) {
 
-const action =  
-    currentlyEnabled  
-        ? "disable"  
-        : "enable";  
+const action =
+    currentlyEnabled
+        ? "disable"
+        : "enable";
 
-try {  
+try {
 
-    const form = new URLSearchParams();  
+    const form = new URLSearchParams();
 
-    form.append("id", id);  
-    form.append("action", action);  
+    form.append("id", id);
+    form.append("action", action);
 
-    const response = await fetch(  
-        "/clients/status",  
-        {  
-            method: "POST",  
-            headers: {  
-                "Content-Type":  
-                    "application/x-www-form-urlencoded"  
-            },  
-            body: form  
-        }  
-    );  
+    const response = await fetch(
+        "/clients/status",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body: form
+        }
+    );
 
-    if (!response.ok) {  
+    if (!response.ok) {
 
-        const message = await response.text();  
+        const message = await response.text();
 
-        alert(  
-            message ||  
-            "Failed to change client status"  
-        );  
+        alert(
+            message ||
+            "Failed to change client status"
+        );
 
-        return;  
-    }  
+        return;
+    }
 
-    window.location.reload();  
+    window.location.reload();
 
-} catch (error) {  
+} catch (error) {
 
-    alert("Failed to change client status");  
+    alert("Failed to change client status");
+
+}
 
 }
 
-}
 
 async function setClientStatus(id, action) {
 
-await toggleClientStatus(  
-    id,  
-    action === "disable"  
+await toggleClientStatus(
+    id,
+    action === "disable"
 );
 
 }
+
 
 async function editQuota(id, currentBytes) {
 
-const currentGB =  
-    currentBytes > 0  
-        ? (currentBytes / 1000000000)  
-        : 0;  
+const currentGB =
+    currentBytes > 0
+        ? (currentBytes / 1000000000)
+        : 0;
 
-const value = prompt(  
-    "Enter traffic quota in GB.\n\n" +  
-    "Use 0 for unlimited.",  
-    currentGB  
-);  
+const value = prompt(
+    "Enter traffic quota in GB.\n\n" +
+    "Use 0 for unlimited.",
+    currentGB
+);
 
-if (value === null) {  
-    return;  
-}  
+if (value === null) {
+    return;
+}
 
-const quota = parseFloat(value);  
+const quota = parseFloat(value);
 
-if (isNaN(quota) || quota < 0) {  
+if (isNaN(quota) || quota < 0) {
 
-    alert("Invalid quota.");  
+    alert("Invalid quota.");
 
-    return;  
-}  
+    return;
+}
 
-try {  
+try {
 
-    const form = new URLSearchParams();  
+    const form = new URLSearchParams();
 
-    form.append("id", id);  
-    form.append("quota", quota);  
+    form.append("id", id);
+    form.append("quota", quota);
 
-    const response = await fetch(  
-        "/clients/quota",  
-        {  
-            method: "POST",  
-            headers: {  
-                "Content-Type":  
-                    "application/x-www-form-urlencoded"  
-            },  
-            body: form  
-        }  
-    );  
+    const response = await fetch(
+        "/clients/quota",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body: form
+        }
+    );
 
-    if (!response.ok) {  
+    if (!response.ok) {
 
-        const message = await response.text();  
+        const message = await response.text();
 
-        alert(  
-            message ||  
-            "Failed to update quota"  
-        );  
+        alert(
+            message ||
+            "Failed to update quota"
+        );
 
-        return;  
-    }  
+        return;
+    }
 
-    window.location.reload();  
+    window.location.reload();
 
-} catch (error) {  
+} catch (error) {
 
-    alert("Failed to update quota");  
+    alert("Failed to update quota");
 
 }
 
 }
+
 
 async function resetTraffic(id) {
 
-if (  
-    !confirm(  
-        "Reset all traffic usage for this client?"  
-    )  
-) {  
-    return;  
-}  
+if (
+    !confirm(
+        "Reset all traffic usage for this client?"
+    )
+) {
 
-try {  
+    return;
 
-    const form = new URLSearchParams();  
+}
 
-    form.append("id", id);  
+try {
 
-    const response = await fetch(  
-        "/clients/reset",  
-        {  
-            method: "POST",  
-            headers: {  
-                "Content-Type":  
-                    "application/x-www-form-urlencoded"  
-            },  
-            body: form  
-        }  
-    );  
+    const form = new URLSearchParams();
 
-    if (!response.ok) {  
+    form.append("id", id);
 
-        const message = await response.text();  
+    const response = await fetch(
+        "/clients/reset",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body: form
+        }
+    );
 
-        alert(  
-            message ||  
-            "Failed to reset traffic"  
-        );  
+    if (!response.ok) {
 
-        return;  
-    }  
+        const message = await response.text();
 
-    window.location.reload();  
+        alert(
+            message ||
+            "Failed to reset traffic"
+        );
 
-} catch (error) {  
+        return;
+    }
 
-    alert("Failed to reset traffic");  
+    window.location.reload();
+
+} catch (error) {
+
+    alert("Failed to reset traffic");
 
 }
 
 }
+
 
 async function updateClientStatus() {
 
-try {  
+try {
 
-    const response = await fetch(  
-        "/api/clients/status",  
-        {  
-            cache: "no-store"  
-        }  
-    );  
+    const response = await fetch(
+        "/api/clients/status",
+        {
+            cache: "no-store"
+        }
+    );
 
-    if (!response.ok) {  
-        return;  
-    }  
+    if (!response.ok) {
+        return;
+    }
 
-    const clients = await response.json();  
+    const clients = await response.json();
 
-    for (const client of clients) {  
+    for (const client of clients) {
 
-        const element =  
-            document.querySelector(  
-                '[data-client-id="' +  
-                client.id +  
-                '"]'  
-            );  
+        const element =
+            document.querySelector(
+                '[data-client-id="' +
+                client.id +
+                '"]'
+            );
 
-        if (!element) {  
-            continue;  
-        }  
+        if (!element) {
+            continue;
+        }
 
-        const used =  
-            element.querySelector(  
-                ".traffic-used"  
-            );  
+        const used =
+            element.querySelector(
+                ".traffic-used"
+            );
 
-        const limit =  
-            element.querySelector(  
-                ".traffic-limit"  
-            );  
+        const limit =
+            element.querySelector(
+                ".traffic-limit"
+            );
 
-        const progress =  
-            element.querySelector(  
-                ".progress-bar"  
-            );  
+        const progress =
+            element.querySelector(
+                ".progress-bar"
+            );
 
-        const statusDot =  
-            element.querySelector(  
-                ".status-dot"  
-            );  
+        const statusDot =
+            element.querySelector(
+                ".status-dot"
+            );
 
-        const onlineLabel =  
-            element.querySelector(  
-                ".online-label"  
-            );  
+        const onlineLabel =
+            element.querySelector(
+                ".online-label"
+            );
 
-        const quotaStatus =  
-            element.querySelector(  
-                ".quota-status"  
-            );  
+        const quotaStatus =
+            element.querySelector(
+                ".quota-status"
+            );
 
-        const statusToggle =  
-            element.querySelector(  
-                ".status-toggle"  
-            );  
+        const statusToggle =
+            element.querySelector(
+                ".status-toggle"
+            );
 
-        if (used) {  
+        if (used) {
 
-            used.textContent =  
-                formatBytes(  
-                    client.traffic_used  
-                );  
-        }  
+            used.textContent =
+                formatBytes(
+                    client.traffic_used
+                );
 
-        if (statusDot) {  
+        }
 
-            if (client.online) {  
+        if (statusDot) {
 
-                statusDot.classList.add(  
-                    "online"  
-                );  
+            if (client.online) {
 
-                statusDot.title =  
-                    "Online";  
+                statusDot.classList.add(
+                    "online"
+                );
 
-            } else {  
+                statusDot.title =
+                    "Online";
 
-                statusDot.classList.remove(  
-                    "online"  
-                );  
+            } else {
 
-                statusDot.title =  
-                    "Offline";  
-            }  
-        }  
+                statusDot.classList.remove(
+                    "online"
+                );
 
-        if (onlineLabel) {  
+                statusDot.title =
+                    "Offline";
 
-            onlineLabel.textContent =  
-                client.online  
-                    ? "Online"  
-                    : "Offline";  
-        }  
+            }
 
-        if (statusToggle) {  
+        }
 
-            if (client.enabled) {  
+        if (onlineLabel) {
 
-                statusToggle.classList.add(  
-                    "enabled"  
-                );  
+            if (client.online) {
 
-                statusToggle.classList.remove(  
-                    "disabled"  
-                );  
+                onlineLabel.textContent = "Online";
 
-                statusToggle.title =  
-                    "Disable";  
+                onlineLabel.classList.remove(
+                    "offline"
+                );
 
-                statusToggle.setAttribute(  
-                    "aria-label",  
-                    "Disable client"  
-                );  
+            } else {
 
-                statusToggle.onclick =  
-                    function() {  
-                        toggleClientStatus(  
-                            client.id,  
-                            true  
-                        );  
-                    };  
+                onlineLabel.textContent = "Offline";
 
-            } else {  
+                onlineLabel.classList.add(
+                    "offline"
+                );
 
-                statusToggle.classList.remove(  
-                    "enabled"  
-                );  
+            }
 
-                statusToggle.classList.add(  
-                    "disabled"  
-                );  
+        }
 
-                statusToggle.title =  
-                    "Enable";  
+        if (statusToggle) {
 
-                statusToggle.setAttribute(  
-                    "aria-label",  
-                    "Enable client"  
-                );  
+            if (client.enabled) {
 
-                statusToggle.onclick =  
-                    function() {  
-                        toggleClientStatus(  
-                            client.id,  
-                            false  
-                        );  
-                    };  
-            }  
-        }  
+                statusToggle.classList.add(
+                    "enabled"
+                );
 
-        if (client.traffic_limit > 0) {  
+                statusToggle.classList.remove(
+                    "disabled"
+                );
 
-            if (limit) {  
+                statusToggle.title =
+                    "Disable";
 
-                limit.textContent =  
-                    "/ " +  
-                    formatBytes(  
-                        client.traffic_limit  
-                    );  
-            }  
+                statusToggle.setAttribute(
+                    "aria-label",
+                    "Disable client"
+                );
 
-            if (progress) {  
+                statusToggle.onclick =
+                    function() {
 
-                let percent =  
-                    client.traffic_used *  
-                    100 /  
-                    client.traffic_limit;  
+                        toggleClientStatus(
+                            client.id,
+                            true
+                        );
 
-                if (percent > 100) {  
-                    percent = 100;  
-                }  
+                    };
 
-                if (percent < 0) {  
-                    percent = 0;  
-                }  
+            } else {
 
-                progress.style.width =  
-                    percent + "%";  
+                statusToggle.classList.remove(
+                    "enabled"
+                );
 
-                if (  
-                    client.traffic_used >=  
-                    client.traffic_limit  
-                ) {  
+                statusToggle.classList.add(
+                    "disabled"
+                );
 
-                    progress.classList.add(  
-                        "full"  
-                    );  
+                statusToggle.title =
+                    "Enable";
 
-                } else {  
+                statusToggle.setAttribute(
+                    "aria-label",
+                    "Enable client"
+                );
 
-                    progress.classList.remove(  
-                        "full"  
-                    );  
-                }  
-            }  
+                statusToggle.onclick =
+                    function() {
 
-        } else {  
+                        toggleClientStatus(
+                            client.id,
+                            false
+                        );
 
-            if (limit) {  
+                    };
 
-                limit.textContent =  
-                    "Unlimited";  
-            }  
+            }
 
-            if (progress) {  
+        }
 
-                progress.style.width =  
-                    "0%";  
+        if (client.traffic_limit > 0) {
 
-                progress.classList.remove(  
-                    "full"  
-                );  
-            }  
-        }  
+            if (limit) {
 
-        if (quotaStatus) {  
+                limit.textContent =
+                    "/ " +
+                    formatBytes(
+                        client.traffic_limit
+                    );
 
-            if (!client.enabled) {  
+            }
 
-                quotaStatus.classList.add(  
-                    "show"  
-                );  
+            if (progress) {
 
-            } else {  
+                let percent =
+                    client.traffic_used *
+                    100 /
+                    client.traffic_limit;
 
-                quotaStatus.classList.remove(  
-                    "show"  
-                );  
-            }  
-        }  
-    }  
+                if (percent > 100) {
+                    percent = 100;
+                }
 
-} catch (error) {  
+                if (percent < 0) {
+                    percent = 0;
+                }
 
-    console.log(  
-        "Status update failed:",  
-        error  
-    );  
+                progress.style.width =
+                    percent + "%";
+
+                if (
+                    client.traffic_used >=
+                    client.traffic_limit
+                ) {
+
+                    progress.classList.add(
+                        "full"
+                    );
+
+                } else {
+
+                    progress.classList.remove(
+                        "full"
+                    );
+
+                }
+
+            }
+
+        } else {
+
+            if (limit) {
+
+                limit.textContent =
+                    "Unlimited";
+
+            }
+
+            if (progress) {
+
+                progress.style.width =
+                    "0%";
+
+                progress.classList.remove(
+                    "full"
+                );
+
+            }
+
+        }
+
+        if (quotaStatus) {
+
+            if (!client.enabled) {
+
+                quotaStatus.classList.add(
+                    "show"
+                );
+
+            } else {
+
+                quotaStatus.classList.remove(
+                    "show"
+                );
+
+            }
+
+        }
+
+    }
+
+} catch (error) {
+
+    console.log(
+        "Status update failed:",
+        error
+    );
+
 }
 
 }
+
 
 function formatBytes(bytes) {
 
-if (bytes < 1000) {  
-    return bytes + " B";  
-}  
+if (bytes < 1000) {
+    return bytes + " B";
+}
 
-if (bytes < 1000000) {  
+if (bytes < 1000000) {
 
-    return (  
-        (bytes / 1000).toFixed(1) +  
-        " KB"  
-    );  
-}  
+    return (
+        (bytes / 1000).toFixed(1) +
+        " KB"
+    );
 
-if (bytes < 1000000000) {  
+}
 
-    return (  
-        (bytes / 1000000).toFixed(1) +  
-        " MB"  
-    );  
-}  
+if (bytes < 1000000000) {
 
-return (  
-    (bytes / 1000000000).toFixed(2) +  
-    " GB"  
+    return (
+        (bytes / 1000000).toFixed(1) +
+        " MB"
+    );
+
+}
+
+return (
+    (bytes / 1000000000).toFixed(2) +
+    " GB"
 );
 
 }
+
 
 updateClientStatus();
 
 setInterval(
-updateClientStatus,
-5000
+    updateClientStatus,
+    5000
 );
 
+
 document.addEventListener(
-"keydown",
-function(event) {
+    "keydown",
+    function(event) {
 
-if (event.key === "Escape") {  
-        hideQR();  
-    }  
+        if (event.key === "Escape") {
+            hideQR();
+        }
 
-}
-
+    }
 );
 
 </script></body>
-
 </html>
