@@ -1,3 +1,4 @@
+```dockerfile
 FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
@@ -19,9 +20,9 @@ RUN curl -L \
     -o /usr/local/bin/cloudflared \
     && chmod +x /usr/local/bin/cloudflared
 
-# Install Xray 26.3.27
+# Install Xray 26.6.27
 RUN curl -L \
-    https://github.com/XTLS/Xray-core/releases/download/v26.3.27/Xray-linux-64.zip \
+    https://github.com/XTLS/Xray-core/releases/download/v26.6.27/Xray-linux-64.zip \
     -o /tmp/xray.zip \
     && unzip /tmp/xray.zip xray -d /usr/local/bin/ \
     && chmod +x /usr/local/bin/xray \
@@ -38,3 +39,4 @@ RUN mkdir -p data
 EXPOSE 8080
 
 CMD ["./panel"]
+```
