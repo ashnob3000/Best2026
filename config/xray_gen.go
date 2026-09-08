@@ -82,6 +82,11 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 					},
 					"outboundTag": "api",
 				},
+				map[string]interface{}{
+					"type":         "field",
+					"network":      []string{"tcp", "udp"},
+					"outboundTag": "warp",
+				},
 			},
 		},
 
@@ -141,11 +146,6 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 
 		"outbounds": []interface{}{
 			map[string]interface{}{
-				"protocol": "freedom",
-				"tag":      "direct",
-			},
-
-			map[string]interface{}{
 				"protocol": "wireguard",
 				"tag":      "warp",
 
@@ -157,10 +157,8 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 						"2606:4700:110:8c68:89c9:ecf7:730d:2319/128",
 					},
 
-					"mtu": 1280,
-
-					"peers": []interface{}{
-						map[string]interface{}{
+					"peers": []map[string]interface{}{
+						{
 							"publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
 
 							"allowedIPs": []string{
@@ -171,24 +169,12 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 							"endpoint": "engage.cloudflareclient.com:2408",
 						},
 					},
-				},
-			},
-		},
-	}
 
-	// Send all non-API traffic through WARP.
-	cfg["routing"].(map[string]interface{})["rules"] = []interface{}{
-		map[string]interface{}{
-			"type": "field",
-			"inboundTag": []string{
-				"api",
+					"mtu": 1280,
+				},
+
+				"domainStrategy": "ForceIP",
 			},
-			"outboundTag": "api",
-		},
-		map[string]interface{}{
-			"type":       "field",
-			"network":    "tcp,udp",
-			"outboundTag": "warp",
 		},
 	}
 
@@ -208,10 +194,12 @@ func GenerateVlessConfig(sni, wsHost string) map[string]interface{} {
 		"streamSettings": map[string]interface{}{
 			"network":  "ws",
 			"security": "tls",
+
 			"wsSettings": map[string]string{
 				"path": "/vless",
 				"host": wsHost,
 			},
+
 			"tlsSettings": map[string]string{
 				"serverName": sni,
 			},
@@ -232,10 +220,12 @@ func GenerateTrojanConfig(sni, wsHost string) map[string]interface{} {
 		"streamSettings": map[string]interface{}{
 			"network":  "ws",
 			"security": "tls",
+
 			"wsSettings": map[string]string{
 				"path": "/trojan",
 				"host": wsHost,
 			},
+
 			"tlsSettings": map[string]string{
 				"serverName": sni,
 			},
