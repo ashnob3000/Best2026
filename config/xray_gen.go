@@ -165,7 +165,7 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 								"::/0",
 							},
 
-							"endpoint": "engage.cloudflareclient.com:2408",
+							"endpoint": "162.159.192.1:2408",
 						},
 					},
 
