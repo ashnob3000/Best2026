@@ -38,4 +38,3 @@ RUN mkdir -p data
 EXPOSE 8080
 
 CMD ["./panel"]
-```
