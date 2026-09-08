@@ -1,8 +1,10 @@
+```go
 package config
 
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/google/uuid"
 )
@@ -39,6 +41,11 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 				"level":    0,
 			})
 		}
+	}
+
+	warpPrivateKey := os.Getenv("WARP_PRIVATE_KEY")
+	if warpPrivateKey == "" {
+		return nil, fmt.Errorf("WARP_PRIVATE_KEY environment variable is not set")
 	}
 
 	cfg := map[string]interface{}{
@@ -137,6 +144,51 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 				"protocol": "freedom",
 				"tag":      "direct",
 			},
+
+			map[string]interface{}{
+				"protocol": "wireguard",
+				"tag":      "warp",
+
+				"settings": map[string]interface{}{
+					"secretKey": warpPrivateKey,
+
+					"address": []string{
+						"172.16.0.2/32",
+						"2606:4700:110:8c68:89c9:ecf7:730d:2319/128",
+					},
+
+					"mtu": 1280,
+
+					"peers": []interface{}{
+						map[string]interface{}{
+							"publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+
+							"allowedIPs": []string{
+								"0.0.0.0/0",
+								"::/0",
+							},
+
+							"endpoint": "engage.cloudflareclient.com:2408",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Send all non-API traffic through WARP.
+	cfg["routing"].(map[string]interface{})["rules"] = []interface{}{
+		map[string]interface{}{
+			"type": "field",
+			"inboundTag": []string{
+				"api",
+			},
+			"outboundTag": "api",
+		},
+		map[string]interface{}{
+			"type":       "field",
+			"network":    "tcp,udp",
+			"outboundTag": "warp",
 		},
 	}
 
@@ -199,3 +251,4 @@ func ToJSON(cfg map[string]interface{}) (string, error) {
 
 	return string(b), nil
 }
+```
