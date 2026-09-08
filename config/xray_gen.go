@@ -1,4 +1,3 @@
-```go
 package config
 
 import (
@@ -241,4 +240,3 @@ func ToJSON(cfg map[string]interface{}) (string, error) {
 
 	return string(b), nil
 }
-```
