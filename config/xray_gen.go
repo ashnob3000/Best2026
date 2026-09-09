@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/google/uuid"
 )
@@ -42,11 +41,6 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 		}
 	}
 
-	warpPrivateKey := os.Getenv("WARP_PRIVATE_KEY")
-	if warpPrivateKey == "" {
-		return nil, fmt.Errorf("WARP_PRIVATE_KEY environment variable is not set")
-	}
-
 	cfg := map[string]interface{}{
 		"log": map[string]interface{}{
 			"loglevel": "warning",
@@ -80,11 +74,6 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 						"api",
 					},
 					"outboundTag": "api",
-				},
-				map[string]interface{}{
-					"type":         "field",
-					"network":      []string{"tcp", "udp"},
-					"outboundTag": "warp",
 				},
 			},
 		},
@@ -145,34 +134,8 @@ func GenerateXrayConfig(clients []Client) ([]byte, error) {
 
 		"outbounds": []interface{}{
 			map[string]interface{}{
-				"protocol": "wireguard",
-				"tag":      "warp",
-
-				"settings": map[string]interface{}{
-					"secretKey": warpPrivateKey,
-
-					"address": []string{
-						"172.16.0.2/32",
-						"2606:4700:110:8c68:89c9:ecf7:730d:2319/128",
-					},
-
-					"peers": []map[string]interface{}{
-						{
-							"publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-
-							"allowedIPs": []string{
-								"0.0.0.0/0",
-								"::/0",
-							},
-
-							"endpoint": "162.159.192.1:2408",
-						},
-					},
-
-					"mtu": 1280,
-				},
-
-				"domainStrategy": "ForceIP",
+				"protocol": "freedom",
+				"tag":      "direct",
 			},
 		},
 	}
@@ -193,12 +156,10 @@ func GenerateVlessConfig(sni, wsHost string) map[string]interface{} {
 		"streamSettings": map[string]interface{}{
 			"network":  "ws",
 			"security": "tls",
-
 			"wsSettings": map[string]string{
 				"path": "/vless",
 				"host": wsHost,
 			},
-
 			"tlsSettings": map[string]string{
 				"serverName": sni,
 			},
@@ -219,12 +180,10 @@ func GenerateTrojanConfig(sni, wsHost string) map[string]interface{} {
 		"streamSettings": map[string]interface{}{
 			"network":  "ws",
 			"security": "tls",
-
 			"wsSettings": map[string]string{
 				"path": "/trojan",
 				"host": wsHost,
 			},
-
 			"tlsSettings": map[string]string{
 				"serverName": sni,
 			},
